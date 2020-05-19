@@ -1,59 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>CS353 - Group 20</title>
+    <title>Company Sign Up</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/css/font-awesome.css">
     <link rel="stylesheet" href="/css/bootstrap-dark.css">
     <link rel="stylesheet" href="css/style.css" />
+
 
     <!-- import the webpage's javascript file -->
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/script.js" defer></script>
   </head>
+
   <body>
-  	<div class="container">
-  		<h1 class="display-4 text-center">SIGN UP page</h1>
-  	</div>
-
+    <h1 class="text-center">Company Sign Up Page</h1>
     <div class="container">
-    <div class="row">
-      <div class="col-lg-10 col-xl-9 mx-auto">
-        <div class="card card-signin flex-row my-5">
-          <div class="card-body">
-            <h5 class="card-title text-center">Register</h5>
-            <form class="form-signin">
-              <div class="form-label-group">
-                <input type="text" id="inputUserame" class="form-control" placeholder="Username" required autofocus>
-                <label for="inputUserame">Username</label>
-              </div>
-
-              <div class="form-label-group">
-                <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required>
-                <label for="inputEmail">Email address</label>
-              </div>
-              
-              <hr>
-
-              <div class="form-label-group">
-                <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-                <label for="inputPassword">Password</label>
-              </div>
-              
-              <div class="form-label-group">
-                <input type="password" id="inputConfirmPassword" class="form-control" placeholder="Password" required>
-                <label for="inputConfirmPassword">Confirm password</label>
-              </div>
-
-              <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">Register</button>
-            </form>
+      <div class="login d-flex align-items-center py-5">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-9 col-lg-8 mx-auto">
+              <form>
+                <div class="form-label-group">
+                  <input type="name" id="inputName" class="form-control" placeholder="Email address" required autofocus>
+                  <label for="inputName">Company Name</label>
+                </div>
+                <div class="form-label-group">
+                  <input type="name" id="inputName" class="form-control" placeholder="Email address" required autofocus>
+                  <label for="inputName">Agent Name</label>
+                </div>
+                <div class="form-label-group">
+                  <input type="email" id="inputEmail" class="form-control" placeholder="Email Address" required>
+                  <label for="inputEmail">Email Address</label>
+                </div>
+                <div class="form-label-group">
+                  <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                  <label for="inputPassword">Password</label>
+                </div>
+                <div class="form-label-group">
+                  <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                  <label for="inputPassword">Confirm Password</label>
+                </div>
+                <a href="devHome.html">
+                    <button class="btn btn-lg btn-primary btn-block btn-login text-uppercase font-weight-bold mb-2" type="submit">Sign Up</button>
+                </a>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+</div>
+
+
   </body>
 </html>
