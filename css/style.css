@@ -22,7 +22,7 @@ h1 {
 .bg-image {
   /*background-size: cover;*/
   width: 0.5rem;
-  height: 0.5rem;	
+  height: 0.5rem;
   background-position: center;
 }
 
@@ -121,4 +121,12 @@ h1 {
   .form-label-group input:-ms-input-placeholder {
     color: #777;
   }
+}
+
+.vertical-center {
+  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+
+  display: flex;
+  align-items: center;
 }
