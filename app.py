@@ -62,9 +62,45 @@ def devSignUp():
 def devSignIn():
     return render_template("devSignIn.html")
 
+@app.route("/compHome.html")
+def compHome():
+    return render_template("compHome.html")
+    
+
 @app.route("/adminSignIn.html")
 def adminSignIn():
     return render_template("adminSignIn.html")
+
+@app.route("/compSelectTrack.html")
+def compSelectTrack():
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT DISTINCT track_id FROM Track")        
+    mysql.connection.commit()
+
+    queryRespone = cur.fetchall();
+
+    if len(queryRespone) == 0:
+        flash ("There is not any track")
+    else :
+        print (queryRespone)
+
+    return render_template("compSelectTrack.html")
+
+@app.route("/compCreateTrack.html")
+def compCreateTrack():
+    return render_template("compCreateTrack.html")
+
+@app.route("/compInviteDeveloper.html")
+def compInviteDeveloper():
+    return render_template("compInviteDeveloper.html")
+
+@app.route("/compReviewTrack.html")
+def compReviewTrack():
+    return render_template("compReviewTrack.html")
 
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
@@ -77,7 +113,21 @@ def comSignIn():
     if (request.method == "POST"):
 
         email = form.email.data
-        password = sha256_crypt.encrypt(str(form.password.data))
+        password = form.password.data
+
+         # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Create new User
+        cur.execute("SELECT * FROM User, compRep WHERE User.user_id = compRep.compRep_id AND User.email = '{0}' AND User.password = '{1}'".format(email,password))        
+        mysql.connection.commit()
+
+        queryRespone = cur.fetchall();
+
+        if len(queryRespone) == 0:
+            flash ("Email or password is incorrect!")
+        else :
+            return redirect(url_for("compHome"))
 
     return render_template("comSignIn.html" , form=form)
 
@@ -100,7 +150,7 @@ def comSignUp():
         agentName = form.agentName.data
         companyName = form.companyName.data
         email = form.email.data
-        password = sha256_crypt.encrypt(str(form.password.data))
+        password = form.password.data
 
         # Create cursor
         cur = mysql.connection.cursor()
