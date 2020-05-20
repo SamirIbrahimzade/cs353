@@ -35,8 +35,18 @@
           <th>question</th>
           <th>{{questions["difficulty"]}}</th>
           <th>{{questions["dept_name"]}}</th>
-          <th>
-            <button type="button" class="btn btn-primary mt-5" style="width: 200px">Add to Track</button></th>
+
+          <th><button method = "POST" type="button" class="btn btn-primary mt-5" name="" id={{ questions["question_id"]}}  onclick: <form method="POST" style= "width: 200px; height: 50px;  "action = ""> <textarea style="display: none;">{{ questions["question_id"]}}</textarea>   </form>Add to Track</button></th>
+          
+          <!--<th>
+            <button type="button" class="btn btn-primary mt-5" style="width: 200px">Add to Track</button></th>-->
+            <!-- <script>
+              var d;
+                var d=document.getElementById("button");
+                
+                d.innerHTML+="<th><button type=\"button\" class=\"btn btn-primary mt-5\" name=\"" + {{questions["question_id"]}} + "\" style=\"width: 200px\">Add to Track</button></th>";
+                alert(5);
+            </script> -->
         </tr>
          {% endfor %}
        </table>

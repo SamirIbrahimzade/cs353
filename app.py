@@ -120,7 +120,18 @@ def compCreateTrack():
     else :
         print (queryRespone)
 
+    class CreateTrackForm(Form):
+        id = StringField('Id', [validators.Length(min=1, max=50)])
     
+    form = CreateTrackForm(request.form)
+    
+
+   # id = form.id.data
+   #  print(id)
+    if (request.method == "POST"):
+        id = form.id.data
+        print(53454)
+
 
     return render_template("compCreateTrack.html", question = queryRespone)
 
