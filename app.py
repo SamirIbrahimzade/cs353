@@ -9,7 +9,7 @@ app.debug = True
 # MYSQL configuration
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'askari14'
+app.config['MYSQL_PASSWORD'] = '1234'
 app.config['MYSQL_DB'] = 'db'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
