@@ -40,7 +40,7 @@ def devSignUp():
     if request.method == 'POST':
         name = form.name.data
         email = form.email.data
-        password = sha256_crypt.encrypt(str(form.password.data))
+        password = form.password.data
 
         # Create cursor
         cur = mysql.connection.cursor()
@@ -58,9 +58,36 @@ def devSignUp():
         return redirect(url_for('index'))
     return render_template("devSignUp.html", form = form)
 
-@app.route("/devSignIn.html")
+@app.route("/devSignIn.html", methods=['GET', 'POST'])
 def devSignIn():
-    return render_template("devSignIn.html")
+
+    class SignIn(Form):
+        email = StringField('Email', [validators.Length(min=6, max=50)])
+        password = PasswordField('Password', [validators.DataRequired(),
+                    validators.EqualTo('confirm', message="Passwords do not match!")])
+    
+    form = SignIn(request.form)
+
+    if (request.method == "POST"):
+
+        email = form.email.data
+        password = form.password.data
+
+        # Create Cursor
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT *FROM User, companyRepresentativeWHERE User.user_id = companyRepresentative.compRep_id ANDUser.email = '{0}' ANDUser.password = '{1}'".format(email , password))
+        mysql.connection.commit()
+
+        # Get response
+        queryResponse = cur.fetchall();
+
+        if (len(queryResponse) == 0):
+            flash("Email or Password is incorrect")
+        else:
+            return redirect(url_for("devHome"))
+    
+
+    return render_template("devSignIn.html" , form=form)
 
 @app.route("/adminSignIn.html")
 def adminSignIn():
@@ -68,17 +95,6 @@ def adminSignIn():
 
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
-    
-    class signIn(Form):
-        email = StringField('Email', [validators.Length(min=6, max=50)])
-        password = PasswordField('Password', [validators.DataRequired()])
-    form = signIn(request.form)
-
-    if (request.method == "POST"):
-
-        email = form.email.data
-        password = sha256_crypt.encrypt(str(form.password.data))
-
     return render_template("comSignIn.html" , form=form)
 
 @app.route("/comSignUp.html" , methods=['GET', 'POST'] )
@@ -100,7 +116,7 @@ def comSignUp():
         agentName = form.agentName.data
         companyName = form.companyName.data
         email = form.email.data
-        password = sha256_crypt.encrypt(str(form.password.data))
+        password = form.password.data
 
         # Create cursor
         cur = mysql.connection.cursor()
@@ -116,8 +132,6 @@ def comSignUp():
 
         # Create new Company Rep
         cur.execute("INSERT INTO compRep(compRep_id , comp_name) VALUES(%s , %s)", (userid , companyName))
-
-        # Commit to DB
         mysql.connection.commit()
 
         # Close connection
