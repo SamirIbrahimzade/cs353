@@ -1,6 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, TextAreaField, PasswordField, validators, RadioField
 from passlib.hash import sha256_crypt
 
 app = Flask(__name__)
@@ -23,6 +23,11 @@ mysql = MySQL(app)
 def index():
     return render_template("index.html")
 
+@app.route("/forgotPass.html")
+def forgotPass():
+    return render_template("forgotPass.html")
+
+# Dev Functions
 
 @app.route("/devSignUp.html", methods=['GET', 'POST'])
 def devSignUp():
@@ -102,12 +107,150 @@ def devSignIn():
 
     return render_template("devSignIn.html" , form=form)
 
-@app.route("/adminSignIn.html")
-def adminSignIn():
-    return render_template("adminSignIn.html")
+@app.route("/devHome.html")
+def devHome():
+    return render_template("devHome.html")
+
+@app.route("/searchQuestion.html")
+def searchQuestion():
+
+    class SearchForm(Form):
+        input = StringField("Input" ,[validators.Required("Please enter Question")] )
+
+    form = SearchForm(request.form)
+
+    if (request.method == "POST"):
+
+        flush("HI")
+
+    return render_template("searchQuestion.html" , form=form)
+
+@app.route("/searchResult.html")
+def searchResult():
+    return render_template("searchResult.html")
+
+@app.route("/questionDetails/<string:id>/")
+def questionDetails(id):
+    return render_template("questionDetails.html", id = id)
+
+@app.route("/discussion.html/<string:id>.html/")
+def discussion(id):
+    return render_template("discussion.html", id = id)
+
+@app.route("/postQuestion.html" , methods=['Get', 'POST'])
+def postQuestion():
+
+    class makeQuestion(Form):
+
+        question = TextAreaField("Question: ",[validators.Required("Please enter Question")])  
+        answer = TextAreaField("Answer: ",[validators.Required("Please Answer")])
+        difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('l', 'large')])
+
+    form = makeQuestion(request.form);
+
+    return render_template("postQuestion.html" , form = form)
+# Company Functions
+
+@app.route("/compCreateTrack.html")
+def compCreateTrack():
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT * FROM Question")      
+    mysql.connection.commit()
+
+    queryRespone = cur.fetchall();
+
+    if len(queryRespone) == 0:
+        flash ("There is not any question")
+    else :
+        print (queryRespone)
+
+    
+
+    return render_template("compCreateTrack.html")
+
+@app.route("/compInviteDeveloper.html")
+def compInviteDeveloper():
+
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT * FROM Developer")      
+    mysql.connection.commit()
+
+    queryRespone = cur.fetchall();
+
+    if len(queryRespone) == 0:
+        flash ("There is not any question")
+    else :
+        print (queryRespone)
+
+
+
+    return render_template("compInviteDeveloper.html")
+
+@app.route("/compHome.html")
+def compHome():
+    return render_template("compHome.html")
+
+@app.route("/compSelectTrack.html")
+def compSelectTrack():
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT DISTINCT track_id FROM Track")        
+    mysql.connection.commit()
+
+    queryRespone = cur.fetchall();
+
+    if len(queryRespone) == 0:
+        flash ("There is not any track")
+    else :
+        print (queryRespone)
+
+    return render_template("compSelectTrack.html")
+
+@app.route("/compReviewTrack.html")
+def compReviewTrack():
+    return render_template("compReviewTrack.html")
 
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
+
+    class SignIn(Form):
+        email = StringField('Email', [validators.Length(min=6, max=50)])
+        password = PasswordField('Password', [validators.DataRequired(),
+                    validators.EqualTo('confirm', message="Passwords do not match!")])
+    
+    form = SignIn(request.form)
+
+    if (request.method == "POST"):
+
+        email = form.email.data
+        password = form.password.data
+
+        # Create Cursor
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM User, compRep " + 
+         "WHERE User.user_id = compRep.compRep_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
+        mysql.connection.commit()
+
+        # Get response
+        queryResponse = cur.fetchall();
+
+        if (len(queryResponse) == 0):
+            flash("Email or Password is incorrect")
+        else:
+            return redirect(url_for("compHome"))
+    
+
     return render_template("comSignIn.html" , form=form)
 
 @app.route("/comSignUp.html" , methods=['GET', 'POST'] )
@@ -157,29 +300,12 @@ def comSignUp():
 
     return render_template("comSignUp.html" , form = form)
 
-@app.route("/forgotPass.html")
-def forgotPass():
-    return render_template("forgotPass.html")
+# Admin Functions
 
-@app.route("/devHome.html")
-def devHome():
-    return render_template("devHome.html")
-    
-@app.route("/searchQuestion.html")
-def searchQuestion():
-    return render_template("searchQuestion.html")
+@app.route("/adminSignIn.html")
+def adminSignIn():
+    return render_template("adminSignIn.html")
 
-@app.route("/searchResult.html")
-def searchResult():
-    return render_template("searchResult.html")
-
-@app.route("/questionDetails/<string:id>/")
-def questionDetails(id):
-    return render_template("questionDetails.html", id = id)
-
-@app.route("/discussion.html/<string:id>.html/")
-def discussion(id):
-    return render_template("discussion.html", id = id)
 
 if __name__== '__main__':
     app.secret_key = "difficult"
