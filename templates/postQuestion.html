@@ -19,15 +19,23 @@
   	&nbsp;
   </header>
   <body>
+    {% from "includes/_formhelpers.html" import render_field %}
+    <form method="POST" action="">
+      <div class="form-group">
+        {{render_field(form.question, class_="form-control")}}
+      </div>
+      <div class="form-group">
+        {{render_field(form.answer, class_="form-control")}}
+      </div>
+    </form>
+    <p>Question:</p>
     <div>
-      Question:
       <textarea id="Question" rows="10" cols="160%" style="border: 3px solid black">
-        Question
       </textarea>
     </div>
+    <p>Answer</p>
     <div>
-      <textarea id="Question" rows="1" cols="120%" style="border: 3px solid black">
-        Topics
+      <textarea id="Question" rows="10" cols="160%" style="border: 3px solid black">
       </textarea>
     </div>
     <div>

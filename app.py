@@ -1,6 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, TextAreaField, PasswordField, validators, RadioField
 from passlib.hash import sha256_crypt
 
 app = Flask(__name__)
@@ -23,6 +23,11 @@ mysql = MySQL(app)
 def index():
     return render_template("index.html")
 
+@app.route("/forgotPass.html")
+def forgotPass():
+    return render_template("forgotPass.html")
+
+# Dev Functions
 
 @app.route("/devSignUp.html", methods=['GET', 'POST'])
 def devSignUp():
@@ -102,6 +107,49 @@ def devSignIn():
 
     return render_template("devSignIn.html" , form=form)
 
+@app.route("/devHome.html")
+def devHome():
+    return render_template("devHome.html")
+
+@app.route("/searchQuestion.html")
+def searchQuestion():
+
+    class SearchForm(Form):
+        input = StringField("Input" ,[validators.Required("Please enter Question")] )
+
+    form = SearchForm(request.form)
+
+    if (request.method == "POST"):
+
+        flush("HI")
+
+    return render_template("searchQuestion.html" , form=form)
+
+@app.route("/searchResult.html")
+def searchResult():
+    return render_template("searchResult.html")
+
+@app.route("/questionDetails/<string:id>/")
+def questionDetails(id):
+    return render_template("questionDetails.html", id = id)
+
+@app.route("/discussion.html/<string:id>.html/")
+def discussion(id):
+    return render_template("discussion.html", id = id)
+
+@app.route("/postQuestion.html" , methods=['Get', 'POST'])
+def postQuestion():
+
+    class makeQuestion(Form):
+
+        question = TextAreaField("Question: ",[validators.Required("Please enter Question")])  
+        answer = TextAreaField("Answer: ",[validators.Required("Please Answer")])
+        difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('l', 'large')])
+
+    form = makeQuestion(request.form);
+
+    return render_template("postQuestion.html" , form = form)
+# Company Functions
 
 @app.route("/compCreateTrack.html")
 def compCreateTrack():
@@ -173,7 +221,6 @@ def compSelectTrack():
 def compReviewTrack():
     return render_template("compReviewTrack.html")
 
-
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
 
@@ -205,10 +252,6 @@ def comSignIn():
     
 
     return render_template("comSignIn.html" , form=form)
-
-@app.route("/adminSignIn.html")
-def adminSignIn():
-    return render_template("adminSignIn.html")
 
 @app.route("/comSignUp.html" , methods=['GET', 'POST'] )
 def comSignUp():
@@ -257,29 +300,12 @@ def comSignUp():
 
     return render_template("comSignUp.html" , form = form)
 
-@app.route("/forgotPass.html")
-def forgotPass():
-    return render_template("forgotPass.html")
+# Admin Functions
 
-@app.route("/devHome.html")
-def devHome():
-    return render_template("devHome.html")
+@app.route("/adminSignIn.html")
+def adminSignIn():
+    return render_template("adminSignIn.html")
 
-@app.route("/searchQuestion.html")
-def searchQuestion():
-    return render_template("searchQuestion.html")
-
-@app.route("/searchResult.html")
-def searchResult():
-    return render_template("searchResult.html")
-
-@app.route("/questionDetails/<string:id>/")
-def questionDetails(id):
-    return render_template("questionDetails.html", id = id)
-
-@app.route("/discussion.html/<string:id>.html/")
-def discussion(id):
-    return render_template("discussion.html", id = id)
 
 if __name__== '__main__':
     app.secret_key = "difficult"
