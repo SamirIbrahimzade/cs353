@@ -71,7 +71,37 @@ def devSignUp():
 
 @app.route("/devSignIn.html", methods=['GET', 'POST'])
 def devSignIn():
-    return render_template("compSelectTrack.html")
+
+    class SignIn(Form):
+
+        email = StringField('Email', [validators.Length(min=6, max=50)])
+        password = PasswordField('Password', [validators.DataRequired(),
+                    validators.EqualTo('confirm', message="Passwords do not match!")])
+    
+    form = SignIn(request.form)
+
+    if (request.method == "POST"):
+
+        email = form.email.data
+        password = form.password.data
+
+        # Create Cursor
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM User, Developer " + 
+         "WHERE User.user_id = Developer.developer_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
+        mysql.connection.commit()
+
+        # Get response
+        queryResponse = cur.fetchall();
+
+        if (len(queryResponse) == 0):
+            flash("Email or Password is incorrect")
+        else:
+            return redirect(url_for("devHome"))
+    
+
+    return render_template("devSignIn.html" , form=form)
+
 
 @app.route("/compCreateTrack.html")
 def compCreateTrack():
@@ -155,10 +185,6 @@ def comSignIn():
 @app.route("/adminSignIn.html")
 def adminSignIn():
     return render_template("adminSignIn.html")
-
-@app.route("/comSignIn.html", methods=['GET', 'POST'])
-def comSignIn():
-    return render_template("comSignIn.html" , form=form)
 
 @app.route("/comSignUp.html" , methods=['GET', 'POST'] )
 def comSignUp():
