@@ -44,9 +44,20 @@ def devSignUp():
 
         # Create cursor
         cur = mysql.connection.cursor()
+        
+        # Create new User
         cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (name, email, password))
+        mysql.connection.commit()
 
-        # Commit to DB
+        # Get User Id
+        cur.execute("Select user_id from User where email='{0}'".format(email));
+        mysql.connection.commit();
+        userid = cur.fetchall()[0]['user_id']
+
+        print (userid)
+
+        # Create new Developer 
+        cur.execute("INSERT INTO Developer (developer_id) VALUES(%s)", [userid])
         mysql.connection.commit()
 
         # Close connection
@@ -75,7 +86,8 @@ def devSignIn():
 
         # Create Cursor
         cur = mysql.connection.cursor()
-        cur.execute("SELECT *FROM User, companyRepresentativeWHERE User.user_id = companyRepresentative.compRep_id ANDUser.email = '{0}' ANDUser.password = '{1}'".format(email , password))
+        cur.execute("SELECT * FROM User, Developer " + 
+         "WHERE User.user_id = Developer.developer_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
         mysql.connection.commit()
 
         # Get response
