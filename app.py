@@ -40,13 +40,24 @@ def devSignUp():
     if request.method == 'POST':
         name = form.name.data
         email = form.email.data
-        password = sha256_crypt.encrypt(str(form.password.data))
+        password = form.password.data
 
         # Create cursor
         cur = mysql.connection.cursor()
+        
+        # Create new User
         cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (name, email, password))
+        mysql.connection.commit()
 
-        # Commit to DB
+        # Get User Id
+        cur.execute("Select user_id from User where email='{0}'".format(email));
+        mysql.connection.commit();
+        userid = cur.fetchall()[0]['user_id']
+
+        print (userid)
+
+        # Create new Developer 
+        cur.execute("INSERT INTO Developer (developer_id) VALUES(%s)", [userid])
         mysql.connection.commit()
 
         # Close connection
@@ -58,36 +69,8 @@ def devSignUp():
         return redirect(url_for('index'))
     return render_template("devSignUp.html", form = form)
 
-@app.route("/devSignIn.html")
+@app.route("/devSignIn.html", methods=['GET', 'POST'])
 def devSignIn():
-    return render_template("devSignIn.html")
-
-@app.route("/compHome.html")
-def compHome():
-    return render_template("compHome.html")
-    
-
-@app.route("/adminSignIn.html")
-def adminSignIn():
-    return render_template("adminSignIn.html")
-
-@app.route("/compSelectTrack.html")
-def compSelectTrack():
-
-    # Create cursor
-    cur = mysql.connection.cursor()
-
-    # Create new User
-    cur.execute("SELECT DISTINCT track_id FROM Track")        
-    mysql.connection.commit()
-
-    queryRespone = cur.fetchall();
-
-    if len(queryRespone) == 0:
-        flash ("There is not any track")
-    else :
-        print (queryRespone)
-
     return render_template("compSelectTrack.html")
 
 @app.route("/compCreateTrack.html")
@@ -139,38 +122,49 @@ def compReviewTrack():
 
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
-    
+
     class signIn(Form):
         email = StringField('Email', [validators.Length(min=6, max=50)])
-        password = PasswordField('Password', [validators.DataRequired()])
-    form = signIn(request.form)
+        password = PasswordField('Password', [validators.DataRequired(),
+                    validators.EqualTo('confirm', message="Passwords do not match!")])
+    
+    form = SignIn(request.form)
 
     if (request.method == "POST"):
 
         email = form.email.data
         password = form.password.data
 
-         # Create cursor
+        # Create Cursor
         cur = mysql.connection.cursor()
-
-        # Create new User
-        cur.execute("SELECT * FROM User, compRep WHERE User.user_id = compRep.compRep_id AND User.email = '{0}' AND User.password = '{1}'".format(email,password))        
+        cur.execute("SELECT * FROM User, Developer " + 
+         "WHERE User.user_id = Developer.developer_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
         mysql.connection.commit()
 
-        queryRespone = cur.fetchall();
+        # Get response
+        queryResponse = cur.fetchall();
 
-        if len(queryRespone) == 0:
-            flash ("Email or password is incorrect!")
-        else :
-            return redirect(url_for("compHome"))
+        if (len(queryResponse) == 0):
+            flash("Email or Password is incorrect")
+        else:
+            return redirect(url_for("devHome"))
+    
 
+    return render_template("devSignIn.html" , form=form)
+
+@app.route("/adminSignIn.html")
+def adminSignIn():
+    return render_template("adminSignIn.html")
+
+@app.route("/comSignIn.html", methods=['GET', 'POST'])
+def comSignIn():
     return render_template("comSignIn.html" , form=form)
 
 @app.route("/comSignUp.html" , methods=['GET', 'POST'] )
 def comSignUp():
 
     class RegisterForm(Form):
-        
+
         companyName = StringField('Company Name', [validators.Length(min=1, max=50)])
         agentName = StringField('Agent Name', [validators.Length(min=4, max=25)])
         email = StringField('Email', [validators.Length(min=6, max=50)])
@@ -179,7 +173,7 @@ def comSignUp():
         confirm = PasswordField('Confirm Password')
 
     form = RegisterForm(request.form)
-    
+
     if request.method == 'POST':
 
         agentName = form.agentName.data
@@ -189,9 +183,9 @@ def comSignUp():
 
         # Create cursor
         cur = mysql.connection.cursor()
-        
+
         # Create new User
-        cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (agentName, email, password))        
+        cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (agentName, email, password))
         mysql.connection.commit()
 
         # Get User Id
@@ -201,8 +195,6 @@ def comSignUp():
 
         # Create new Company Rep
         cur.execute("INSERT INTO compRep(compRep_id , comp_name) VALUES(%s , %s)", (userid , companyName))
-
-        # Commit to DB
         mysql.connection.commit()
 
         # Close connection
