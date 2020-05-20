@@ -16,22 +16,21 @@
         <div class="container">
           <div class="row">
             <div class="col-md-9 col-lg-8 mx-auto">
-              <form>
-                <div class="form-label-group">
-                  <input type="name" id="inputName" class="form-control" placeholder="Email address" required autofocus>
-                  <label for="inputName">Name</label>
+                {% from "includes/_formhelpers.html" import render_field %}
+              <form method="POST" action="">
+                <div class="form-group">
+                    {{render_field(form.name, class_="form-control")}}
                 </div>
-                <div class="form-label-group">
-                  <input type="email" id="inputEmail" class="form-control" placeholder="Name" required>
-                  <label for="inputEmail">Email Address</label>
+                <div class="form-group">
+                    {{render_field(form.email, class_="form-control")}}
                 </div>
-                <div class="form-label-group">
-                  <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-                  <label for="inputPassword">Password</label>
+                <div class="form-group">
+                    {{render_field(form.password, class_="form-control")}}
                 </div>
-                <a href="devHome.html">
-                    <button class="btn btn-lg btn-primary btn-block btn-login text-uppercase font-weight-bold mb-2" type="submit">Sign Up</button>
-                </a>
+                <div class="form-group">
+                    {{render_field(form.confirm, class_="form-control")}}
+                </div>
+                <input class="btn btn-primary text-uppercase font-weight-bold mb-2" type="submit" value="submit"></input>
               </form>
             </div>
           </div>
