@@ -43,13 +43,13 @@ def searchQuestion():
 def searchResult():
     return render_template("searchResult.html")
 
-@app.route("/questionDetails.html")
-def questionDetails():
-    return render_template("questionDetails.html")
+@app.route("/questionDetails/<string:id>/")
+def questionDetails(id):
+    return render_template("questionDetails.html", id = id)
 
-@app.route("/discussion.html")
-def discussion():
-    return render_template("discussion.html")
+@app.route("/discussion.html/<string:id>.html/")
+def discussion(id):
+    return render_template("discussion.html", id = id)
 
 if __name__== '__main__':
     app.run()
