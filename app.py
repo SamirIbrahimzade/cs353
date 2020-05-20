@@ -9,7 +9,7 @@ app.debug = True
 # MYSQL configuration
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'askari14'
+app.config['MYSQL_PASSWORD'] = '1234'
 app.config['MYSQL_DB'] = 'db'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
@@ -68,7 +68,7 @@ def adminSignIn():
 
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
-    
+
     class signIn(Form):
         email = StringField('Email', [validators.Length(min=6, max=50)])
         password = PasswordField('Password', [validators.DataRequired()])
@@ -85,7 +85,7 @@ def comSignIn():
 def comSignUp():
 
     class RegisterForm(Form):
-        
+
         companyName = StringField('Company Name', [validators.Length(min=1, max=50)])
         agentName = StringField('Agent Name', [validators.Length(min=4, max=25)])
         email = StringField('Email', [validators.Length(min=6, max=50)])
@@ -94,7 +94,7 @@ def comSignUp():
         confirm = PasswordField('Confirm Password')
 
     form = RegisterForm(request.form)
-    
+
     if request.method == 'POST':
 
         agentName = form.agentName.data
@@ -104,9 +104,9 @@ def comSignUp():
 
         # Create cursor
         cur = mysql.connection.cursor()
-        
+
         # Create new User
-        cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (agentName, email, password))        
+        cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (agentName, email, password))
         mysql.connection.commit()
 
         # Get User Id
