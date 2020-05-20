@@ -92,10 +92,45 @@ def compSelectTrack():
 
 @app.route("/compCreateTrack.html")
 def compCreateTrack():
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT * FROM Question")      
+    mysql.connection.commit()
+
+    queryRespone = cur.fetchall();
+
+    if len(queryRespone) == 0:
+        flash ("There is not any question")
+    else :
+        print (queryRespone)
+
+    
+
     return render_template("compCreateTrack.html")
 
 @app.route("/compInviteDeveloper.html")
 def compInviteDeveloper():
+
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT * FROM Developer")      
+    mysql.connection.commit()
+
+    queryRespone = cur.fetchall();
+
+    if len(queryRespone) == 0:
+        flash ("There is not any question")
+    else :
+        print (queryRespone)
+
+
+
     return render_template("compInviteDeveloper.html")
 
 @app.route("/compReviewTrack.html")
