@@ -22,11 +22,20 @@
     {% include 'includes/_message.html' %}
 	   <div>
        <table style="width:100%; border: solid black;">
-       <tr>
-         <th>Track Name</th>
-         <th>Number of questions</th>
-         <th>Select</th>
-       </tr>
+        <tr>
+          <th>Track Name</th>
+          <th>Number of Questions</th>
+          <th>Select Track</th>
+        </tr>
+        {% for tracks in track %}
+        
+        <tr>
+          <th>{{tracks["track_name"]}}</th>
+          <th>{{tracks["no_questions"]}}</th>
+          <th>
+            <a href="compHome.html"><button type="button" class="btn btn-primary mt-5"  style="width: 200px">Home</button></a></th>
+        </tr>
+         {% endfor %}
        </table>
      </div>
 

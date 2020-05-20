@@ -122,7 +122,7 @@ def compCreateTrack():
 
     
 
-    return render_template("compCreateTrack.html")
+    return render_template("compCreateTrack.html", question = queryRespone)
 
 @app.route("/compInviteDeveloper.html")
 def compInviteDeveloper():
@@ -157,7 +157,7 @@ def compSelectTrack():
     cur = mysql.connection.cursor()
 
     # Create new User
-    cur.execute("SELECT DISTINCT track_id FROM Track")        
+    cur.execute("SELECT * FROM Track")        
     mysql.connection.commit()
 
     queryRespone = cur.fetchall();
@@ -167,7 +167,7 @@ def compSelectTrack():
     else :
         print (queryRespone)
 
-    return render_template("compSelectTrack.html")
+    return render_template("compSelectTrack.html", track = queryRespone);
 
 @app.route("/compReviewTrack.html")
 def compReviewTrack():

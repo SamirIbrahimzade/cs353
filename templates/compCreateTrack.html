@@ -11,7 +11,9 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <!-- <link rel="stylesheet" href="css/bootstrap.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css" /> -->
-
+    
+      
+      
   </head>
   <header class="text-center">
     <br>
@@ -21,12 +23,22 @@
   <body>
 	   <div>
        <table style="width:100%; border: solid black;">
-       <tr>
-         <th>Question</th>
-         <th>Difficulty</th>
-         <th>Topic</th>
-         <th>Add to track</th>
-       </tr>
+        <tr>
+          <th>question</th>
+          <th>Difficulty</th>
+          <th>Department name</th>
+          <th> Add to track</th>
+        </tr>
+        {% for questions in question %}
+        
+        <tr>
+          <th>question</th>
+          <th>{{questions["difficulty"]}}</th>
+          <th>{{questions["dept_name"]}}</th>
+          <th>
+            <button type="button" class="btn btn-primary mt-5" style="width: 200px">Add to Track</button></th>
+        </tr>
+         {% endfor %}
        </table>
      </div>
 
