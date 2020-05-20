@@ -111,7 +111,7 @@ def devSignIn():
 def devHome():
     return render_template("devHome.html")
 
-@app.route("/searchQuestion.html")
+@app.route("/searchQuestion.html", methods=['Get', 'Post'])
 def searchQuestion():
 
     class SearchForm(Form):
@@ -120,21 +120,47 @@ def searchQuestion():
     form = SearchForm(request.form)
 
     if (request.method == "POST"):
+        
+        input = form.input.data;
 
-        flush("HI")
+        # Create cursor
+        cur = mysql.connection.cursor()
 
+        # Get All Questions
+        cur.execute("Select * from Question where dept_name='{0}';".format(input));
+        mysql.connection.commit()
+
+        # Return the questions to the next page
+        queryResponse = cur.fetchall();
+        # print (queryResponse);
+        import json
+
+        return searchResult(queryResponse , input)
     return render_template("searchQuestion.html" , form=form)
 
-@app.route("/searchResult.html")
-def searchResult():
-    return render_template("searchResult.html")
+def searchResult(obj , topic):
+
+    return render_template("searchResult.html", questions=obj , topic=topic)
 
 @app.route("/questionDetails/<string:id>/")
 def questionDetails(id):
-    return render_template("questionDetails.html", id = id)
 
-@app.route("/discussion.html/<string:id>.html/")
+    # Get the details of the question
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Get Specific Question
+    cur.execute("Select * from Question where question_id='{0}';".format(id));
+    mysql.connection.commit()
+
+    # Return the questions to the next page
+    queryResponse = cur.fetchall()[0]['description'];
+
+    return render_template("questionDetails.html", id = id , description=queryResponse)
+
+@app.route("/discussion/<string:id>.html/")
 def discussion(id):
+
     return render_template("discussion.html", id = id)
 
 @app.route("/postQuestion.html" , methods=['Get', 'POST'])
@@ -149,6 +175,7 @@ def postQuestion():
     form = makeQuestion(request.form);
 
     return render_template("postQuestion.html" , form = form)
+
 # Company Functions
 
 @app.route("/compCreateTrack.html")
