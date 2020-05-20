@@ -23,6 +23,8 @@ mysql = MySQL(app)
 def index():
     return render_template("index.html")
 
+
+
 @app.route("/forgotPass.html")
 def forgotPass():
     return render_template("forgotPass.html")
@@ -125,6 +127,10 @@ def searchQuestion():
 
     return render_template("searchQuestion.html" , form=form)
 
+@app.route("/joinTrack.html")
+def joinTrack():
+    return render_template("joinTrack.html")
+
 @app.route("/searchResult.html")
 def searchResult():
     return render_template("searchResult.html")
@@ -147,8 +153,27 @@ def postQuestion():
         difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('l', 'large')])
 
     form = makeQuestion(request.form);
+    question = form.question.data
+    answer = form.answer.data
+    difficulty = form.difficulty.data
+    topic = ""
+    test_case = ""
+    approval = 0
 
-    return render_template("postQuestion.html" , form = form)
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO question(dept_name, description, test_case, difficulty, approval)" + 
+        "VALUES ('{0}', '{1}', '{2}', '{3}', 0)".format(topic, question, test_case, difficulty))
+    mysql.connection.commit()
+
+        # Get response
+    queryResponse = cur.fetchall();
+
+    # if (len(queryResponse) == 0):
+    #     flash("Email or Password is incorrect")
+    # else:
+    #     return redirect(url_for("devHome"))
+
+    return redirect(url_for("devHome"))
 # Company Functions
 
 @app.route("/compCreateTrack.html")
