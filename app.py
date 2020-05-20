@@ -113,12 +113,12 @@ def compCreateTrack():
     cur.execute("SELECT * FROM Question")      
     mysql.connection.commit()
 
-    queryRespone = cur.fetchall();
+    queryResponse = cur.fetchall();
 
-    if len(queryRespone) == 0:
+    if len(queryResponse) == 0:
         flash ("There is not any question")
     else :
-        print (queryRespone)
+        print (queryResponse)
 
     class CreateTrackForm(Form):
         id = StringField('Id', [validators.Length(min=1, max=50)])
@@ -133,7 +133,7 @@ def compCreateTrack():
         print(53454)
 
 
-    return render_template("compCreateTrack.html", question = queryRespone)
+    return render_template("compCreateTrack.html", question = queryResponse)
 
 @app.route("/compInviteDeveloper.html")
 def compInviteDeveloper():
@@ -146,12 +146,12 @@ def compInviteDeveloper():
     cur.execute("SELECT * FROM Developer")      
     mysql.connection.commit()
 
-    queryRespone = cur.fetchall();
+    queryResponse = cur.fetchall();
 
-    if len(queryRespone) == 0:
+    if len(queryResponse) == 0:
         flash ("There is not any question")
     else :
-        print (queryRespone)
+        print (queryResponse)
 
 
 
