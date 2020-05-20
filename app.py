@@ -71,24 +71,9 @@ def devSignUp():
 
 @app.route("/devSignIn.html", methods=['GET', 'POST'])
 def devSignIn():
-    return render_template("compSelectTrack.html")
 
-@app.route("/compCreateTrack.html")
-def compCreateTrack():
-    return render_template("compCreateTrack.html")
+    class SignIn(Form):
 
-@app.route("/compInviteDeveloper.html")
-def compInviteDeveloper():
-    return render_template("compInviteDeveloper.html")
-
-@app.route("/compReviewTrack.html")
-def compReviewTrack():
-    return render_template("compReviewTrack.html")
-
-@app.route("/comSignIn.html", methods=['GET', 'POST'])
-def comSignIn():
-
-    class signIn(Form):
         email = StringField('Email', [validators.Length(min=6, max=50)])
         password = PasswordField('Password', [validators.DataRequired(),
                     validators.EqualTo('confirm', message="Passwords do not match!")])
