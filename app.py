@@ -164,7 +164,7 @@ def forgotPass():
 @app.route("/devHome.html")
 def devHome():
     return render_template("devHome.html")
-
+    
 @app.route("/searchQuestion.html")
 def searchQuestion():
     return render_template("searchQuestion.html")
