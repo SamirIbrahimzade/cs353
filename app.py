@@ -113,16 +113,16 @@ def compCreateTrack():
     cur.execute("SELECT * FROM Question")      
     mysql.connection.commit()
 
-    queryRespone = cur.fetchall();
+    queryResponse = cur.fetchall();
 
-    if len(queryRespone) == 0:
+    if len(queryResponse) == 0:
         flash ("There is not any question")
     else :
-        print (queryRespone)
+        print (queryResponse)
 
     
 
-    return render_template("compCreateTrack.html", question = queryRespone)
+    return render_template("compCreateTrack.html", question = queryResponse)
 
 @app.route("/compInviteDeveloper.html")
 def compInviteDeveloper():
@@ -135,12 +135,12 @@ def compInviteDeveloper():
     cur.execute("SELECT * FROM Developer")      
     mysql.connection.commit()
 
-    queryRespone = cur.fetchall();
+    queryResponse = cur.fetchall();
 
-    if len(queryRespone) == 0:
+    if len(queryResponse) == 0:
         flash ("There is not any question")
     else :
-        print (queryRespone)
+        print (queryResponse)
 
 
 
