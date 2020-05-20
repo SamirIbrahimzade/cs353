@@ -146,14 +146,38 @@ def compInviteDeveloper():
 
     return render_template("compInviteDeveloper.html")
 
+@app.route("/compHome.html")
+def compHome():
+    return render_template("compHome.html")
+
+@app.route("/compSelectTrack.html")
+def compSelectTrack():
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT DISTINCT track_id FROM Track")        
+    mysql.connection.commit()
+
+    queryRespone = cur.fetchall();
+
+    if len(queryRespone) == 0:
+        flash ("There is not any track")
+    else :
+        print (queryRespone)
+
+    return render_template("compSelectTrack.html")
+
 @app.route("/compReviewTrack.html")
 def compReviewTrack():
     return render_template("compReviewTrack.html")
 
+
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
 
-    class signIn(Form):
+    class SignIn(Form):
         email = StringField('Email', [validators.Length(min=6, max=50)])
         password = PasswordField('Password', [validators.DataRequired(),
                     validators.EqualTo('confirm', message="Passwords do not match!")])
@@ -167,8 +191,8 @@ def comSignIn():
 
         # Create Cursor
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM User, Developer " + 
-         "WHERE User.user_id = Developer.developer_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
+        cur.execute("SELECT * FROM User, compRep " + 
+         "WHERE User.user_id = compRep.compRep_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
         mysql.connection.commit()
 
         # Get response
@@ -177,10 +201,10 @@ def comSignIn():
         if (len(queryResponse) == 0):
             flash("Email or Password is incorrect")
         else:
-            return redirect(url_for("devHome"))
+            return redirect(url_for("compHome"))
     
 
-    return render_template("devSignIn.html" , form=form)
+    return render_template("comSignIn.html" , form=form)
 
 @app.route("/adminSignIn.html")
 def adminSignIn():
