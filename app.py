@@ -9,7 +9,7 @@ app.debug = True
 # MYSQL configuration
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '1234'
+app.config['MYSQL_PASSWORD'] = 'askari14'
 app.config['MYSQL_DB'] = 'db'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
@@ -23,17 +23,18 @@ mysql = MySQL(app)
 def index():
     return render_template("index.html")
 
-class RegisterForm(Form):
-    name = StringField('Name', [validators.Length(min=1, max=50)])
-    username = StringField('Username', [validators.Length(min=4, max=25)])
-    email = StringField('Email', [validators.Length(min=6, max=50)])
-    password = PasswordField('Password', [validators.DataRequired(),
-                validators.EqualTo('confirm', message="Passwords do not match!")])
-    confirm = PasswordField('Confirm Password')
-
 
 @app.route("/devSignUp.html", methods=['GET', 'POST'])
 def devSignUp():
+
+    class RegisterForm(Form):
+        name = StringField('Name', [validators.Length(min=1, max=50)])
+        username = StringField('Username', [validators.Length(min=4, max=25)])
+        email = StringField('Email', [validators.Length(min=6, max=50)])
+        password = PasswordField('Password', [validators.DataRequired(),
+                    validators.EqualTo('confirm', message="Passwords do not match!")])
+        confirm = PasswordField('Confirm Password')
+
     form = RegisterForm(request.form)
     print("here")
     if request.method == 'POST':
@@ -61,19 +62,73 @@ def devSignUp():
 def devSignIn():
     return render_template("devSignIn.html")
 
-
-
 @app.route("/adminSignIn.html")
 def adminSignIn():
     return render_template("adminSignIn.html")
 
-@app.route("/comSignIn.html")
+@app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
-    return render_template("comSignIn.html")
+    
+    class signIn(Form):
+        email = StringField('Email', [validators.Length(min=6, max=50)])
+        password = PasswordField('Password', [validators.DataRequired()])
+    form = signIn(request.form)
 
-@app.route("/comSignUp.html")
+    if (request.method == "POST"):
+
+        email = form.email.data
+        password = sha256_crypt.encrypt(str(form.password.data))
+
+    return render_template("comSignIn.html" , form=form)
+
+@app.route("/comSignUp.html" , methods=['GET', 'POST'] )
 def comSignUp():
-    return render_template("comSignUp.html")
+
+    class RegisterForm(Form):
+        
+        companyName = StringField('Company Name', [validators.Length(min=1, max=50)])
+        agentName = StringField('Agent Name', [validators.Length(min=4, max=25)])
+        email = StringField('Email', [validators.Length(min=6, max=50)])
+        password = PasswordField('Password', [validators.DataRequired(),
+                    validators.EqualTo('confirm', message="Passwords do not match!")])
+        confirm = PasswordField('Confirm Password')
+
+    form = RegisterForm(request.form)
+    
+    if request.method == 'POST':
+
+        agentName = form.agentName.data
+        companyName = form.companyName.data
+        email = form.email.data
+        password = sha256_crypt.encrypt(str(form.password.data))
+
+        # Create cursor
+        cur = mysql.connection.cursor()
+        
+        # Create new User
+        cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (agentName, email, password))        
+        mysql.connection.commit()
+
+        # Get User Id
+        cur.execute("Select user_id from User where email='{0}'".format(email));
+        mysql.connection.commit();
+        userid = cur.fetchall()[0]['user_id']
+
+        # Create new Company Rep
+        cur.execute("INSERT INTO compRep(compRep_id , comp_name) VALUES(%s , %s)", (userid , companyName))
+
+        # Commit to DB
+        mysql.connection.commit()
+
+        # Close connection
+        cur.close()
+
+        flash("You are now registered successfully", 'success')
+
+        return redirect(url_for('index'))
+
+
+    return render_template("comSignUp.html" , form = form)
 
 @app.route("/forgotPass.html")
 def forgotPass():
