@@ -1,51 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>CS353 - Group 20</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css" />
+{% extends 'layout.html' %}
 
-    <!-- import the webpage's javascript file -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/script.js" defer></script>
-  </head>
-  <header style="text-align: center;">
-  	<h1 class="text-secondary">Post Question</h1>
-  	&nbsp;
-  </header>
-  <body>
-    <div>
-      Question:
-      <p id="Question" rows="10" cols="160%" style="border: 3px solid black">
-        Question
-      </p>
-    </div>
-    <div>
-      <p id="Question" rows="1" cols="120%" style="border: 3px solid black">
-        Topics
-      </p>
-    </div>
-    <div>
-      Enter difficulty level:
-      <form action="">
-        <input type="radio" name="difficulty" value="easy"> Easy
-        <input type="radio" name="difficulty" value="mediun"> Medium
-        <input type="radio" name="difficulty" value="hard"> Hard
+
+{% block body %}
+<header style="text-align: center;">
+  <h1 class="text-secondary">Review Question</h1>
+  &nbsp;
+</header>
+<div>
+    Question:
+    <p id="Question" rows="10" cols="160%" style="border: 3px solid black ; padding-left: 10px;padding-right: 10px;">
+      {{ question['description']}}
+    </p>
+  </div>
+  <div>
+    <p id="Question" rows="1" cols="120%" style="border: 3px solid black ;padding-left: 10px;padding-right: 10px;">
+      {{ question['dept_name']}}
+    </p>
+  </div>
+  {% from "includes/_formhelpers.html" import render_field %}
+  <div>
+    Difficulty: <b>{{ question['difficulty'] }}</b>
+  
+  <div class="p-3" style="text-align: center; justify-content: center;">
+      <form style="float: left ;" method="POST" action="adminReviewSpecificQuestion.html">
+        <textarea style="display:none;" name=id>{{question['question_id']}}</textarea><textarea style="display:none;" name=btn>accept</textarea><button class="btn btn-info" type="submit">Accept</button>
       </form>
-      <br>
-    </div>
+      <form style="float: right;" method="POST" action="adminReviewSpecificQuestion.html">
+        <textarea style="display:none;" name=id>{{question['question_id']}}</textarea><textarea style="display:none;" name=btn>decline</textarea><button class="btn btn-info" type="submit">Decline</button>
+      </form>
+  </div>
 
-    <div class="p-3" style="text-align: center;">
-      <a href="adminHome.html" class="btn btn-info" role="button">Accept</a>
-    </div>
-    <div class="p-3" style="text-align: center;">
-      <a href="adminHome.html" class="btn btn-info" role="button">Decline</a>
-    </div>
-
-  </body>
-</html>
+</div>
+{% endblock %}

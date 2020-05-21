@@ -338,6 +338,111 @@ def comSignUp():
 def adminSignIn():
     return render_template("adminSignIn.html")
 
+@app.route("/adminHome.html")
+def adminHome():
+    return render_template("adminHome.html")
+
+@app.route("/adminReviewQuestion.html" , methods=["GET" , "POST"])
+def adminReviewQuestion():
+
+    class buttonForm(Form):
+
+        id = StringField('id' , [validators.DataRequired()])
+        btn = StringField('btn', [validators.DataRequired()])
+
+    form = buttonForm(request.form)
+
+    if (request.method == "POST") :
+
+        id = form.id.data
+        btn = form.btn.data
+
+        print (btn)
+
+        if (btn == "review"):
+
+            # Send to specific question review
+            return redirect(url_for('adminSpecificReviewQuestion' , id=id))
+
+        elif (btn == "accept"):
+            # Create cursor
+            cur = mysql.connection.cursor()
+
+            # Create new User
+            cur.execute("update Question set approval=1 where question_id={0};".format(id))        
+            mysql.connection.commit()
+
+        else:
+            # Create cursor
+            cur = mysql.connection.cursor()
+
+            # Create new User
+            cur.execute("delete from Question where question_id={0};".format(id))        
+            mysql.connection.commit()
+
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT * FROM Question WHERE approval = 0")        
+    mysql.connection.commit()
+
+    # Get the response
+    questions = cur.fetchall();
+    
+    return render_template("adminReviewQuestion.html", form=form, questions=questions)
+
+@app.route("/adminReviewSpecificQuestion/<id>" , methods=["GET", "POST"])
+def adminSpecificReviewQuestion(id=-1):
+
+    class updateQuestion(Form):
+        id = StringField('id' , [validators.DataRequired()])
+        btn = StringField('btn', [validators.DataRequired()])
+
+    form = updateQuestion(request.form)
+
+    if (request.method == "POST"):
+        
+        id = form.id.data
+        btn = form.btn.data
+
+        if (btn == "accept"):
+
+            # Create cursor
+            cur = mysql.connection.cursor()
+
+            # Create new User
+            cur.execute("update Question set approval=1 where question_id={0};".format(id))        
+            mysql.connection.commit()
+
+        elif (btn == "decline"):
+
+            # Create cursor
+            cur = mysql.connection.cursor()
+
+            # Create new User
+            cur.execute("delete from Question where question_id={0};".format(id))        
+            mysql.connection.commit()
+
+        
+        return redirect(url_for("adminReviewQuestion"))
+
+    question = []
+    if (int(id) > 0):
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Create new User
+        cur.execute("SELECT * FROM Question WHERE question_id ={0}".format(str(id)))        
+        mysql.connection.commit()
+        adminSpecificReviewQuestion
+        # Get the response
+        question = cur.fetchall()[0];
+
+
+
+    return render_template("adminReviewSpecificQuestion.html" , question=question , form=form)
 
 if __name__== '__main__':
     app.secret_key = "difficult"
