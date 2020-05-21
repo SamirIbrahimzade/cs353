@@ -163,6 +163,11 @@ def discussion(id):
 
     return render_template("discussion.html", id = id)
 
+@app.route("/answerToQuestion.html")
+def answerToQuestion():
+
+    return render_template("answerToQuestion.html" , data="lol")
+
 @app.route("/postQuestion.html" , methods=['Get', 'POST'])
 def postQuestion():
 
