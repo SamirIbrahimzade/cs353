@@ -14,21 +14,18 @@
         <th>Number of questions</th>
         <th>Join</th>
     </tr>
-    {% for tracks in track %}
+    {% for track in tracks %}
     <tr>
-      <th>{{tracks["track_name"]}}</th>
-      <th>{{tracks["no_questions"]}}</th>
-      <th>
-        <a href="compHome.html"><button type="button" class="btn btn-primary mt-5"  style="width: 200px">Select</button></a>
-    </th>
+        <th>{{track["track_name"]}}</th>
+        <th>{{track["no_questions"]}}</th>
+        <th>
+            <form aciton="" method="POST">
+                <textarea style="display: none" name="id">{{track['track_id']}}</textarea>
+                <button class="btn btn-primary" value="submit" id={{track["track_id"]}}>Select</button>
+            </form>
+        </th>
     </tr>
+    {% endfor %}
 </table>
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <h2 class="text-center mt-5">{{messages[0]}}</h2>
-    {% endif %}
-{% endwith %}
-
- {% endfor %}
 
 {% endblock %}

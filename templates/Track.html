@@ -1,33 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>CS353 - Group 20</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% extends 'layout.html' %}
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css" />
+<header style="text-align: center;">
+  <h1 class="text-secondary">Track</h1>
+</header>
 
-    <!-- import the webpage's javascript file -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/script.js" defer></script>
-  </head>
-  <header style="text-align: center;">
-  	<h1 class="text-secondary">Join Track</h1>
-  	&nbsp;
-  </header>
-  <body>
-	<table style="width:100%; border: solid black;">
-  <tr>
-    <th>Question</th>
-    <th>Topics</th>
-    <th>Sol submitted</th>
-    <th>submit sol</th>
-    <th>score</th>
-  </tr>
+{% block body %}
+<table style="width:100%; border: solid black;">
+    <tr>
+        <th>Question</th>
+        <th>Topics</th>
+        <th>Difficulty</th>
+        <th>submit sol</th>
+        <th>score</th>
+    </tr>
+    {% for question in questions %}
+    <tr>
+        <th>{{question["description"]}}</th>
+        <th>{{question["dept_name"]}}</th>
+        <th>{{question["difficulty"]}}</th>
+        <th>
+            <a href="/questionDetails/{{question.question_id}}.html">
+                <button type="button" class="btn btn-primary">Submit Solution</button>
+            </a>
+        </th>
+    </tr>
+    {% endfor %}
+
   </table>
+
 	&nbsp;
   <div class="p-3" style="text-align: center;">
     <a href="Leaderboard.html" class="btn btn-info" role="button">SHOW LEADERBOARD</a>
@@ -35,5 +35,4 @@
   <div class="p-3" style="text-align: center;">
     <a href="trackRep.html" class="btn btn-info" role="button">FINISH TRACK</a>
   </div>
-  </body>
-</html>
+{% endblock %}
