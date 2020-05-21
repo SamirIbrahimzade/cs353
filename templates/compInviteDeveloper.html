@@ -21,11 +21,33 @@
   <body>
 	   <div>
        <table style="width:100%; border: solid black;">
-       <tr>
-         <th>Developer</th>
-         <th>Aggregate Score</th>
-         <th>Invite to interview</th>
-       </tr>
+        <tr>
+          <th>Developer</th> 
+          <th>Invite</th>
+        </tr>
+        {% for developers in developer %}
+        
+
+        
+        <tr>
+          <th>{{developers["name"]}}</th>
+
+
+          <th><form method="POST" style= "width: 200px; height: 90px;" action = "">
+            <script>
+              function funct(id){
+               // alert(1);
+                
+                document.getElementById(id).style.backgroundColor = "red";
+                document.getElementById(id).textContent = "Invitation Sent";
+              }
+            </script>
+            <textarea style="display: none; width:0px;height:0px" name="id">{{developers["name"]}}</textarea>
+            <button class="btn btn-primary text-uppercase font-weight-bold mb-2" type="button" value="submit" id={{developers["name"]}} onClick="funct(this.id)"  >Invite</button>
+            
+          </form></th>
+        </tr>
+         {% endfor %}
        </table>
      </div>
 

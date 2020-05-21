@@ -1,6 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    
+
     <title>CS353 - Group 20</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,8 +14,9 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <!-- <link rel="stylesheet" href="css/bootstrap.css"> -->
     <!-- <link rel="stylesheet" href="css/style.css" /> -->
-    
+
       
+   
       
   </head>
   <header class="text-center">
@@ -35,29 +39,40 @@
           <th>question</th>
           <th>{{questions["difficulty"]}}</th>
           <th>{{questions["dept_name"]}}</th>
+          <script>
+            arr.push(0);
+          </script>
+         -<!-- <th><button method = "POST" type="button" class="btn btn-primary mt-5" name="" id={{ questions["question_id"]}}  onclick: <form method="POST" style= "width: 200px; height: 50px;  "action = ""> <textarea style="display: none;">{{ questions["question_id"]}}</textarea>   </form>Add to Track</button></th>
+          -->
+          <script>arr=[];</script>
+          <script>arr.push(0);</script>
+          <script>
+            function funct(id){
 
-          <th><button method = "POST" type="button" class="btn btn-primary mt-5" name="" id={{ questions["question_id"]}}  onclick: <form method="POST" style= "width: 200px; height: 50px;  "action = ""> <textarea style="display: none;">{{ questions["question_id"]}}</textarea>   </form>Add to Track</button></th>
-          
-          <!--<th>
-            <button type="button" class="btn btn-primary mt-5" style="width: 200px">Add to Track</button></th>-->
-            <!-- <script>
-              var d;
-                var d=document.getElementById("button");
-                
-                d.innerHTML+="<th><button type=\"button\" class=\"btn btn-primary mt-5\" name=\"" + {{questions["question_id"]}} + "\" style=\"width: 200px\">Add to Track</button></th>";
-                alert(5);
-            </script> -->
+            }
+          </script>
+          <th><form method="POST" style= "width: 200px; height: 90px;" action = "">
+
+            <textarea style="display: none; width:0px;height:0px" name="id">{{questions["question_id"]}}</textarea>
+            <button class="btn btn-primary text-uppercase font-weight-bold mb-2" value="submit" id={{questions["question_id"]}} onClick="funct(this.id)"  >Add to Track</button>
+            
+          </form></th>
         </tr>
          {% endfor %}
        </table>
      </div>
 
-	   &nbsp;
+     &nbsp;
+
 
      <div class="row justify-content-center">
-         <a href="compReviewTrack.html">
-             <button type="button" class="btn btn-primary mt-5"  style="width: 200px">Finish track</button>
-         </a>
+      <form method="POST" style= "width: 200px; height: 90px;" action = "">
+
+        <textarea style="display: none; width:0px;height:0px" name="id">0</textarea>
+        <button class="btn btn-primary text-uppercase font-weight-bold mb-2" value="submit">Submit Track</button>
+        
+      </form>
      </div>
+     
   </body>
 </html>

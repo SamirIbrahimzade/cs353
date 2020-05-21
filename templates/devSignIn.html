@@ -1,41 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Developer Sign In</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% extends 'layout.html' %}
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-  </head>
 
-  <body>
-      <h1 class="text-center">Developer Sign In Page</h1>
-<div class="container">
-  {% include 'includes/_message.html' %}
-  <div class="login d-flex align-items-center py-5">
+{% block body %}
+<h1 class="text-center">Developer Sign In Page</h1>
+<div class="login d-flex align-items-center py-5">
     <div class="container">
-      <div class="row">
-        <div class="col-md-9 col-lg-8 mx-auto">
-          <h3 class="login-heading mb-4">Welcome back!</h3>
-          {% from "includes/_formhelpers.html" import render_field %}
-						<form method="POST" action="">
-							
-							<div class="form-group">
-								{{render_field(form.email, class_="form-control")}}
-							</div>
-							<div class="form-group">
-								{{render_field(form.password, class_="form-control")}}
-							</div>   
-							             
-							<input class="btn btn-primary text-uppercase font-weight-bold mb-2" type="submit" value="submit"></input>
-						</form>
+        <div class="row">
+            <div class="col-md-9 col-lg-8 mx-auto">
+                <h3 class="login-heading mb-4">Welcome back!</h3>
+			    <form method="POST">
+				    <div class="form-group">
+                        <input type="text" name="email" class="form-control" value="{{request.form.email}}"></input>
+				    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control" value="{{request.form.password}}"></input>
+				    </div>
+			        <input type="submit" class="btn btn-primary"></input>
+			    </form>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
-
-
-  </body>
-</html>
+{% endblock %}
