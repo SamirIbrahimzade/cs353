@@ -18,7 +18,6 @@ userid = 0
 # Initialize db
 mysql = MySQL(app)
 
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -28,7 +27,6 @@ def forgotPass():
     return render_template("forgotPass.html")
 
 # Dev Functions
-
 @app.route("/devSignUp.html", methods=['GET', 'POST'])
 def devSignUp():
 
@@ -49,7 +47,7 @@ def devSignUp():
 
         # Create cursor
         cur = mysql.connection.cursor()
-        
+
         # Create new User
         cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (name, email, password))
         mysql.connection.commit()
@@ -61,7 +59,7 @@ def devSignUp():
 
         print (userid)
 
-        # Create new Developer 
+        # Create new Developer
         cur.execute("INSERT INTO Developer (developer_id) VALUES(%s)", [userid])
         mysql.connection.commit()
 
@@ -76,36 +74,77 @@ def devSignUp():
 
 @app.route("/devSignIn.html", methods=['GET', 'POST'])
 def devSignIn():
-
-    class SignIn(Form):
-
-        email = StringField('Email', [validators.Length(min=6, max=50)])
-        password = PasswordField('Password', [validators.DataRequired(),
-                    validators.EqualTo('confirm', message="Passwords do not match!")])
-    
-    form = SignIn(request.form)
-
-    if (request.method == "POST"):
-
-        email = form.email.data
-        password = form.password.data
+    if session.get("logged_in") == True:
+        return redirect(url_for("devHome"))
+    elif request.method == 'POST':
+        email = request.form['email']
+        password_candidate = request.form['password']
 
         # Create Cursor
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM User, Developer " + 
-         "WHERE User.user_id = Developer.developer_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
-        mysql.connection.commit()
 
-        # Get response
-        queryResponse = cur.fetchall();
+        result = cur.execute("SELECT * FROM User WHERE email = %s", [email])
+        if result > 0:
+            # Get stored hash
+            data = cur.fetchone()
+            password = data['password']
 
-        if (len(queryResponse) == 0):
-            flash("Email or Password is incorrect")
+            # Compare the passwords
+            if password == password_candidate:
+                app.logger.info('PASSWORD MATCHED')
+                session['logged_in'] = True
+                session['email'] = email
+                flash("You are now logged in", "success")
+                return redirect(url_for('devHome'))
+
+            else:
+                return redirect(url_for('devHome'))
+                app.logger.info('PASSWORD NOT MATCHED')
+                error = 'INVALID LOGIN'
+                return render_template("devSignIn.html", error = error)
+
+            # Close cursor
+            cur.close()
         else:
-            return redirect(url_for("devHome"))
-    
+            error = 'USER NOT FOUND'
+            app.logger.info('USER NOT FOUND')
+            return render_template("devSignIn.html", error = error)
+    return render_template("devSignIn.html")
+    # class SignIn(Form):
+    #
+    #     email = StringField('Email', [validators.Length(min=6, max=50)])
+    #     password = PasswordField('Password', [validators.DataRequired(),
+    #                 validators.EqualTo('confirm', message="Passwords do not match!")])
+    #
+    # form = SignIn(request.form)
+    #
+    # if (request.method == "POST"):
+    #
+    #     email = form.email.data
+    #     password = form.password.data
+    #
+    #     # Create Cursor
+    #     cur = mysql.connection.cursor()
+    #     cur.execute("SELECT * FROM User, Developer " +
+    #      "WHERE User.user_id = Developer.developer_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
+    #     mysql.connection.commit()
+    #
+    #     # Get response
+    #     queryResponse = cur.fetchall();
+    #
+    #     if (len(queryResponse) == 0):
+    #         flash("Email or Password is incorrect")
+    #     else:
+    #         return redirect(url_for("devHome"))
+    #
 
-    return render_template("devSignIn.html" , form=form)
+    # return render_template("devSignIn.html" , form=form)
+
+@app.route("/logout.html")
+def logout():
+    session.clear()
+    flash("You are logged out!", "success")
+    return redirect(url_for("index"))
 
 @app.route("/devHome.html")
 def devHome():
@@ -137,12 +176,31 @@ def questionDetails(id):
 def discussion(id):
     return render_template("discussion.html", id = id)
 
+@app.route("/joinTrack.html")
+def joinTrack():
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+
+    # Create new User
+    cur.execute("SELECT * FROM Track")
+    mysql.connection.commit()
+
+    queryRespone = cur.fetchall();
+
+    if len(queryRespone) == 0:
+        flash ("There is not any track")
+    else :
+        print (queryRespone)
+
+    return render_template("joinTrack.html", track = queryRespone);
+
 @app.route("/postQuestion.html" , methods=['Get', 'POST'])
 def postQuestion():
 
     class makeQuestion(Form):
 
-        question = TextAreaField("Question: ",[validators.Required("Please enter Question")])  
+        question = TextAreaField("Question: ",[validators.Required("Please enter Question")])
         answer = TextAreaField("Answer: ",[validators.Required("Please Answer")])
         difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('l', 'large')])
 
@@ -158,7 +216,7 @@ def compCreateTrack():
     cur = mysql.connection.cursor()
 
     # Create new User
-    cur.execute("SELECT * FROM Question")      
+    cur.execute("SELECT * FROM Question")
     mysql.connection.commit()
 
     queryRespone = cur.fetchall();
@@ -168,7 +226,7 @@ def compCreateTrack():
     else :
         print (queryRespone)
 
-    
+
 
     return render_template("compCreateTrack.html")
 
@@ -180,7 +238,7 @@ def compInviteDeveloper():
     cur = mysql.connection.cursor()
 
     # Create new User
-    cur.execute("SELECT * FROM Developer")      
+    cur.execute("SELECT * FROM Developer")
     mysql.connection.commit()
 
     queryRespone = cur.fetchall();
@@ -205,17 +263,17 @@ def compSelectTrack():
     cur = mysql.connection.cursor()
 
     # Create new User
-    cur.execute("SELECT DISTINCT track_id FROM Track")        
+    cur.execute("SELECT DISTINCT track_id FROM Track")
     mysql.connection.commit()
 
-    queryRespone = cur.fetchall();
+    queryResponse = cur.fetchall();
 
-    if len(queryRespone) == 0:
+    if len(queryResponse) == 0:
         flash ("There is not any track")
     else :
-        print (queryRespone)
+        print (queryResponse)
 
-    return render_template("compSelectTrack.html")
+    return render_template("compSelectTrack.html", track = queryResponse)
 
 @app.route("/compReviewTrack.html")
 def compReviewTrack():
@@ -228,7 +286,7 @@ def comSignIn():
         email = StringField('Email', [validators.Length(min=6, max=50)])
         password = PasswordField('Password', [validators.DataRequired(),
                     validators.EqualTo('confirm', message="Passwords do not match!")])
-    
+
     form = SignIn(request.form)
 
     if (request.method == "POST"):
@@ -238,7 +296,7 @@ def comSignIn():
 
         # Create Cursor
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM User, compRep " + 
+        cur.execute("SELECT * FROM User, compRep " +
          "WHERE User.user_id = compRep.compRep_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
         mysql.connection.commit()
 
@@ -249,7 +307,7 @@ def comSignIn():
             flash("Email or Password is incorrect")
         else:
             return redirect(url_for("compHome"))
-    
+
 
     return render_template("comSignIn.html" , form=form)
 
