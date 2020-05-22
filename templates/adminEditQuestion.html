@@ -3,7 +3,6 @@
 {% block body %}
 <header style="text-align: center;">
   <h1 class="text-secondary">Edit Question</h1>
-  &nbsp;
 </header>
 
 {% from "includes/_formhelpers.html" import render_field %}
@@ -12,11 +11,10 @@
     {{render_field(form.question, class_="form-control", rows='10',cols='50')}}
   </div>
   <div>
-    {{render_field(form.difficulty, class_="form-control" )}}
-    <br>
+    {{render_field(form.difficulty)}}
   </div>
 
-  <div class="p-3" style="text-align: center;">
+  <div class="p-3 mt-5" style="text-align: center;">
     <button type="submit" class="btn btn-info">Post</button>
     <a href="/adminHome.html" class="btn btn-info" role="button">Home</a>
   </div>

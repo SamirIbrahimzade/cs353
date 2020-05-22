@@ -4,6 +4,7 @@ from wtforms import Form, StringField, TextAreaField, PasswordField, validators,
 from passlib.hash import sha256_crypt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
+import MySQLdb
 
 app = Flask(__name__)
 app.debug = True
@@ -32,7 +33,8 @@ def forgotPass():
 @app.route("/devSignUp.html", methods=['GET', 'POST'])
 def devSignUp():
     if session.get("logged_in") == True:
-        logout()
+        flash("Logged in currently, logout first please")
+        return redirect(url_for("index"))
     else:
         class RegisterForm(Form):
             name = StringField('Name', [validators.Length(min=1, max=50)])
@@ -55,7 +57,6 @@ def devSignUp():
                 # Create new User
                 cur.execute("INSERT INTO user(name, email, password) VALUES(%s, %s, %s)", (name, email, password))
                 mysql.connection.commit()
-
                 # Get User Id
                 cur.execute("SELECT user_id FROM user WHERE email='{0}'".format(email));
                 mysql.connection.commit();
@@ -63,16 +64,16 @@ def devSignUp():
                 # Create new Developer
                 cur.execute("INSERT INTO developer (developer_id) VALUES(%s)", [userid])
                 mysql.connection.commit()
-            except exc.IntegrityError:
-                flash("Email exists already")
+                # Close connection
+                cur.close()
+                flash("You are now registered successfully", 'success')
+                return redirect(url_for('index'))
+
+            except MySQLdb.IntegrityError:
                 app.logger.info('Email exists already')
-                return redirect(url_for("devSignUp"))
+                flash("Email exists already", "warning")
+                return render_template("devSignUp.html", form = form)
 
-
-            # Close connection
-            cur.close()
-            flash("You are now registered successfully", 'success')
-            return redirect(url_for('index'))
     return render_template("devSignUp.html", form = form)
 
 
@@ -82,7 +83,7 @@ def postQuestion():
         question = TextAreaField("Question: ",[validators.Required("Please enter Question")])
         answer = TextAreaField("Answer: ",[validators.Required("Please Answer")])
         dept_name = TextAreaField("Department Name: ",[validators.Required("dept_name")])
-        difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('l', 'large')])
+        difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('h', 'hard')])
     form = makeQuestion(request.form)
     if request.method == 'POST':
         # print("in post")
@@ -104,7 +105,7 @@ def postQuestion():
         cur.execute("SELECT question_id FROM question")
         mysql.connection.commit()
         temp = cur.fetchall()
-        print(temp[len(temp)-1]['question_id'])
+
         cur.execute("INSERT INTO discussion(discussion_id, question_id) Values(%s, %s)",
                         [temp[len(temp)-1]['question_id'], temp[len(temp)-1]['question_id']])
         mysql.connection.commit()
@@ -120,12 +121,13 @@ def postQuestion():
 @app.route("/devSignIn.html", methods=['GET', 'POST'])
 def devSignIn():
     if session.get("logged_in") == True:
-        return redirect(url_for("devHome"))
+        if session.get("email") == "admin":
+            flash("Admin is logged in currently!", "warning")
+            return redirect(url_for("index"))
+        else:
+            flash("Redirecting to home")
+            return redirect(url_for("devHome"))
     elif request.method == 'POST':
-        # class signInForm(Form):
-        #     email = StringField("Email Adder: ",[validators.Required("Please enter Question")])
-        #     password = PasswordField("Answer: ",[validators.Required("Please Answer")])
-        # form = signInForm(request.form)
         email = request.form['email']
         password_candidate = request.form['password']
 
@@ -143,12 +145,13 @@ def devSignIn():
                 app.logger.info('PASSWORD MATCHED')
                 session['logged_in'] = True
                 session['email'] = email
+                session['type'] = 'dev'
                 flash("You are now logged in", "success")
                 return redirect(url_for('devHome'))
             else:
-                return redirect(url_for('devHome'))
                 app.logger.info('PASSWORD NOT MATCHED')
                 error = 'INVALID LOGIN'
+                flash("INVALID LOGIN! Check Email/Password!", "warning")
                 return render_template("devSignIn.html", error = error)
 
             # Close cursor
@@ -156,6 +159,7 @@ def devSignIn():
         else:
             error = 'USER NOT FOUND'
             app.logger.info('USER NOT FOUND')
+            flash("USER NOT FOUND", "warning")
             return render_template("devSignIn.html", error = error)
     return render_template("devSignIn.html")
 
@@ -268,8 +272,15 @@ def discussion(id):
 
 @app.route("/answerToQuestion/<string:id>/")
 def answerToQuestion(id):
+    # Create cursor
+    cur = mysql.connection.cursor()
 
-    return render_template("answerToQuestion.html", id = id)
+    cur.execute("SELECT description FROM question WHERE question_id = %s", [id])
+    mysql.connection.commit()
+    question = cur.fetchone()
+    cur.close()
+
+    return render_template("answerToQuestion.html", id = id, question = question)
 
 @app.route("/track/<string:id>.html/", methods = ['GET', 'POST'])
 def track(id):
@@ -407,7 +418,8 @@ def compCreateTrack():
     queryResponse = cur.fetchall();
 
     if len(queryResponse) == 0:
-        flash ("There is not any question")
+        flash ("There is not any question", "warning")
+        return render_template("compCreateTrack.html", question = queryResponse)
 
     class CreateTrackForm(Form):
         id = StringField('id', [validators.Length(min=1, max=50)])
@@ -440,7 +452,6 @@ def compCreateTrack():
         trackResult = cur.fetchall();
 
         compCreatedTrackId = (trackResult[len(trackResult)-1]["track_id"]);
-        print (compCreatedTrackId);
 
     return render_template("compCreateTrack.html", question = queryResponse)
 
@@ -458,7 +469,8 @@ def compInviteDeveloper():
     queryResponse = cur.fetchall()
 
     if len(queryResponse) == 0:
-        flash ("There is not any developer")
+        flash ("There is not any developer", "warning")
+        return render_template("compInviteDeveloper.html",developer = queryResponse)
     else :
         print(track_id)
 
@@ -511,9 +523,9 @@ def compSelectTrack():
     queryRespone = cur.fetchall();
 
     if len(queryRespone) == 0:
-        flash ("There is not any track")
+        flash ("There is not any track", "warning")
+        return render_template("compSelectTrack.html", track = queryRespone)
     else :
-        #print (queryRespone)
         pass
 
     class SelectTrackForm(Form):
@@ -522,11 +534,10 @@ def compSelectTrack():
 
     if request.method == "POST":
         id = form.id.data
-        #print(id, file=sys.stderr)
         return redirect(url_for("compInviteDeveloper", track_id = id))
 
 
-    return render_template("compSelectTrack.html", track = queryRespone);
+    return render_template("compSelectTrack.html", track = queryRespone)
 
 
 compCreatedTrackId2 = 0;
@@ -553,7 +564,8 @@ def compReviewTrack():
 
 
     if len(outputQuestions) == 0:
-        flash ("There is not any question in the track")
+        flash ("There is not any question in the track", "warning")
+        return render_template("compReviewTrack.html",question=outputQuestions)
 
     class ReviewForm(Form):
         trackName = StringField('trackName', [validators.Length(min=1, max=50)])
@@ -574,7 +586,15 @@ def compReviewTrack():
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
     if session.get("logged_in") == True:
-        return redirect(url_for("compHome"))
+        if session.get("email") == "admin":
+            flash("Admin is logged in currently!", "warning")
+            return redirect(url_for("index"))
+        elif session.get("type") == "dev":
+            flash("Developer is logged in currently!", "warning")
+            return redirect(url_for("index"))
+        else:
+            flash("Redirecting to home")
+            return redirect(url_for("compHome"))
     elif request.method == 'POST':
         email = request.form['email']
         password_candidate = request.form['password']
@@ -593,12 +613,13 @@ def comSignIn():
                 app.logger.info('PASSWORD MATCHED')
                 session['logged_in'] = True
                 session['email'] = email
+                session['type'] = 'company'
                 flash("You are now logged in", "success")
                 return redirect(url_for('compHome'))
             else:
-                return redirect(url_for('compHome'))
                 app.logger.info('PASSWORD NOT MATCHED')
                 error = 'INVALID LOGIN'
+                flash("INVALID LOGIN! Check Email/Password!", "warning")
                 return render_template("comSignIn.html", error = error)
 
             # Close cursor
@@ -606,6 +627,7 @@ def comSignIn():
         else:
             error = 'USER NOT FOUND'
             app.logger.info('USER NOT FOUND')
+            flash("USER NOT FOUND", "warning")
             return render_template("comSignIn.html", error = error)
 
 
@@ -638,29 +660,27 @@ def comSignUp():
             cur = mysql.connection.cursor()
 
             try:
-                print("test")
                 cur.execute("INSERT INTO user(name, email, password) VALUES(%s, %s, %s)", (name, email, password))
                 mysql.connection.commit()
-                print("test2")
-            except:
+                # Get User Id
+                cur.execute("SELECT user_id FROM user WHERE email='{0}'".format(email));
+                mysql.connection.commit();
+                userid = cur.fetchall()[0]['user_id']
+
+                # Create new Company Rep
+                cur.execute("INSERT INTO comprep(comprep_id , comp_name) VALUES(%s , %s)", (userid , companyName))
+                mysql.connection.commit()
+
+                # Close connection
+                cur.close()
+
+                flash("You are now registered successfully", 'success')
+                return redirect(url_for('index'))
+
+            except MySQLdb.IntegrityError:
                 app.logger.info('Email exists already')
-                return redirect(url_for("comSignUp"))
-
-            # Get User Id
-            cur.execute("SELECT user_id FROM user WHERE email='{0}'".format(email));
-            mysql.connection.commit();
-            userid = cur.fetchall()[0]['user_id']
-
-            # Create new Company Rep
-            cur.execute("INSERT INTO comprep(comprep_id , comp_name) VALUES(%s , %s)", (userid , companyName))
-            mysql.connection.commit()
-
-            # Close connection
-            cur.close()
-
-            flash("You are now registered successfully", 'success')
-            return redirect(url_for('index'))
-
+                flash("Email exists already", "warning")
+                return render_template("comSignUp.html" , form = form)
 
     return render_template("comSignUp.html" , form = form)
 
@@ -668,7 +688,11 @@ def comSignUp():
 @app.route("/adminSignIn.html", methods=['GET', 'POST'])
 def adminSignIn():
     if session.get("logged_in") == True:
-        return redirect(url_for("adminHome"))
+        if session.get("email") == "admin":
+            return redirect(url_for("adminHome"))
+        else:
+            logout()
+            return redirect(url_for("adminSignIn"))
     else:
         class SignIn(Form):
             email = StringField('Username', [validators.Length(min=6, max=50)])
@@ -692,12 +716,13 @@ def adminSignIn():
             queryResponse = cur.fetchall();
 
             if (len(queryResponse) == 0):
-                flash("Username or Password is incorrect")
+                flash("INVALID LOGIN! Check Email/Password!", "warning")
+                return redirect(url_for("adminSignIn"))
             else:
                 app.logger.info('PASSWORD MATCHED')
                 session['logged_in'] = True
                 session['email'] = email
-                flash("You are now logged in", "success")
+                flash("ADMIN logged in", "success")
                 return redirect(url_for("adminHome"))
 
         return render_template("adminSignIn.html" , form=form)
@@ -758,10 +783,9 @@ def adminCreateQuestion():
         question = TextAreaField("Question: ",[validators.Required("Please enter Question")])
         answer = TextAreaField("Answer: ",[validators.Required("Please Answer")])
         dept_name = TextAreaField("Department Name: ",[validators.Required("dept_name")])
-        difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('l', 'large')])
+        difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('h', 'hard')])
     form = makeQuestion(request.form)
     if request.method == 'POST':
-        print("in post")
         # Create Cursor
         cur = mysql.connection.cursor()
 
@@ -773,11 +797,20 @@ def adminCreateQuestion():
         approval = 1
 
         cur.execute("INSERT INTO question(dept_name, description, test_case, difficulty, approval)" +
-            "VALUES ('{0}', '{1}', '{2}', '{3}', 0)".format(dept_name, question, test_case, difficulty))
+            "VALUES ('{0}', '{1}', '{2}', '{3}', 1)".format(dept_name, question, test_case, difficulty))
         mysql.connection.commit()
 
         # Get response
-        queryResponse = cur.fetchall();
+        queryResponse = cur.fetchall()
+
+        cur.execute("SELECT question_id FROM question")
+        mysql.connection.commit()
+
+        temp = cur.fetchall()
+
+        cur.execute("INSERT INTO discussion(discussion_id, question_id) Values(%s, %s)",
+                        [temp[len(temp)-1]['question_id'], temp[len(temp)-1]['question_id']])
+        mysql.connection.commit()
 
         cur.close()
         return redirect(url_for("adminHome"))
@@ -798,7 +831,8 @@ def adminCreateTrack():
     queryResponse = cur.fetchall();
 
     if len(queryResponse) == 0:
-        flash ("There is not any question")
+        flash ("There is not any question", "warning")
+        return render_template("adminCreateTrack.html", question = queryResponse)
 
     class CreateTrackForm(Form):
         id = StringField('id', [validators.Length(min=1, max=50)])
@@ -853,6 +887,7 @@ def adminReviewTrack():
 
     if len(outputQuestions) == 0:
         flash ("There is not any question in the track")
+        return render_template("adminReviewTrack.html",question=outputQuestions)
 
     class ReviewForm(Form):
         trackName = StringField('trackName', [validators.Length(min=1, max=50)])
@@ -984,7 +1019,7 @@ def adminEditQuestion(id):
 
         question = TextAreaField('Question' , default=q['description'] )
         answer = TextAreaField('Answer' , default=q['test_case'])
-        difficulty = RadioField("Difficulty", choices=[("Easy" , "Easy") , ('Medium' , 'Medium') , ('Large', 'Large')] , default=q['difficulty'])
+        difficulty = RadioField("Difficulty", choices=[("Easy" , "Easy") , ('Medium' , 'Medium') , ('Hard', 'Hard')] , default=q['difficulty'])
 
 
     form = editQuestion(request.form)
