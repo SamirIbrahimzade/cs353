@@ -236,7 +236,7 @@ def compInviteDeveloper():
         mysql.connection.commit()
         activeUID = cur.fetchall();
 
-        print("activeuid   ", activeUID[0]["compRep_id"] , file=sys.stderr)
+        print("activeuid   ", activeUID[0]["compRep_id"], file=sys.stderr)
 
         try:
             cur.execute("INSERT INTO job (developer_id, compRep_id, jobDescription, endDate) VALUES ({0}, {1}, '{2}', '{3}')".format(id,activeUID[0]["compRep_id"],jobDetails,endDate));      
@@ -442,6 +442,14 @@ def searchQuestion():
 @app.route("/searchResult.html")
 def searchResult():
     return render_template("searchResult.html")
+
+
+@app.route("/joinTrack.html")
+def joinTrack():
+    return render_template("joinTrack.html")
+
+
+
 
 @app.route("/questionDetails/<string:id>/")
 def questionDetails(id):
