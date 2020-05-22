@@ -444,6 +444,54 @@ def adminSpecificReviewQuestion(id=-1):
 
     return render_template("adminReviewSpecificQuestion.html" , question=question , form=form)
 
+@app.route("/adminSearchEditQuestion.html" , methods=["GET" , "POST"])
+def adminSearchEditQuestion():
+
+    class searchQuestion(Form):
+        search = StringField('Search' , [validators.DataRequired()])
+
+    form = searchQuestion(request.form)
+
+    if (request.method == "POST"):
+
+        search = form.search.data
+        
+        return redirect(url_for("adminSearchQuestionResult", topic=search))
+
+    return render_template("adminSearchEditQuestion.html" , form=form)
+
+@app.route("/adminSearchQuestionResult/<topic>" , methods=["GET" , "POST"])
+def adminSearchQuestionResult(topic):
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+    
+    # Find the Question 
+    cur.execute("Select * from Question where dept_name = '{0}';".format(topic))
+    mysql.connection.commit()
+
+    questions = cur.fetchall();
+
+    class searchQuestion(Form):
+        id = StringField('id' , [validators.DataRequired()])
+
+    form = searchQuestion(request.form)
+
+    if (request.method == "POST"):
+
+        id = form.id.data
+
+        return redirect(url_for("adminEditQuestion" , id=id))
+
+
+    return render_template("adminSearchQuestionResult.html" , form = form , questions=questions , topic=topic)
+
+@app.route("/adminEditQuestion/<id>" , methods=["GET" , "POST"])
+def adminEditQuestion(id):
+
+
+    return render_template('adminEditQuestion.html')
+
 if __name__== '__main__':
     app.secret_key = "difficult"
     app.run()
