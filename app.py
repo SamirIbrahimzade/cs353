@@ -31,6 +31,7 @@ def forgotPass():
 
 # Dev Functions
 
+
 @app.route("/devSignUp.html", methods=['GET', 'POST'])
 def devSignUp():
 
@@ -113,6 +114,10 @@ def devSignIn():
 def devHome():
     return render_template("devHome.html")
 
+@app.route("/adminHome.html")
+def adminHome():
+    return render_template("adminHome.html")
+
 @app.route("/searchQuestion.html")
 def searchQuestion():
 
@@ -127,9 +132,17 @@ def searchQuestion():
 
     return render_template("searchQuestion.html" , form=form)
 
+@app.route("/adminSearchUser.html")
+def adminSearchUser():
+    return render_template("adminSearchUser.html")
+
 @app.route("/joinTrack.html")
 def joinTrack():
     return render_template("joinTrack.html")
+
+@app.route("/searchResult.html")
+def searchResult():
+    return render_template("searchResult.html")
 
 @app.route("/searchResult.html")
 def searchResult():
@@ -143,38 +156,44 @@ def questionDetails(id):
 def discussion(id):
     return render_template("discussion.html", id = id)
 
+# Company Functions
+
+
+
+
+
 @app.route("/postQuestion.html" , methods=['Get', 'POST'])
 def postQuestion():
-
     class makeQuestion(Form):
-
-        question = TextAreaField("Question: ",[validators.Required("Please enter Question")])  
+        question = TextAreaField("Question: ",[validators.Required("Please enter Question")])
         answer = TextAreaField("Answer: ",[validators.Required("Please Answer")])
+        dept_name = TextAreaField("Department Name: ",[validators.Required("dept_name")])
         difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('l', 'large')])
+    form = makeQuestion(request.form)
+    if request.method == 'POST':
+        print("in post")
+        # Create Cursor
+        cur = mysql.connection.cursor()
 
-    form = makeQuestion(request.form);
-    question = form.question.data
-    answer = form.answer.data
-    difficulty = form.difficulty.data
-    topic = ""
-    test_case = ""
-    approval = 0
+        question = form.question.data
+        answer = form.answer.data
+        difficulty = form.difficulty.data
+        dept_name = form.dept_name.data
+        test_case = ""
+        approval = 0
 
-    cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO question(dept_name, description, test_case, difficulty, approval)" + 
-        "VALUES ('{0}', '{1}', '{2}', '{3}', 0)".format(topic, question, test_case, difficulty))
-    mysql.connection.commit()
+        cur.execute("INSERT INTO question(dept_name, description, test_case, difficulty, approval)" +
+            "VALUES ('{0}', '{1}', '{2}', '{3}', 0)".format(dept_name, question, test_case, difficulty))
+        mysql.connection.commit()
 
         # Get response
-    queryResponse = cur.fetchall();
+        queryResponse = cur.fetchall();
 
-    # if (len(queryResponse) == 0):
-    #     flash("Email or Password is incorrect")
-    # else:
-    #     return redirect(url_for("devHome"))
+        cur.close()
+        return redirect(url_for("devHome"))
 
-    return redirect(url_for("devHome"))
-# Company Functions
+    return render_template("postQuestion.html", form = form)
+
 
 @app.route("/compCreateTrack.html")
 def compCreateTrack():
@@ -327,9 +346,38 @@ def comSignUp():
 
 # Admin Functions
 
-@app.route("/adminSignIn.html")
+@app.route("/adminSignIn.html", methods=['GET', 'POST'])
 def adminSignIn():
-    return render_template("adminSignIn.html")
+
+    class SignIn(Form):
+
+        email = StringField('Username', [validators.Length(min=6, max=50)])
+        password = PasswordField('Password', [validators.DataRequired(),
+                    validators.EqualTo('confirm', message="Passwords do not match!")])
+    
+    form = SignIn(request.form)
+
+    if (request.method == "POST"):
+
+        email = form.email.data
+        password = form.password.data
+
+        # Create Cursor
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM user, admin " + 
+         "WHERE user.user_id = admin.admin_id AND user.name = '{0}' AND user.password = '{1}'".format(email , password))
+        mysql.connection.commit()
+
+        # Get response
+        queryResponse = cur.fetchall();
+
+        if (len(queryResponse) == 0):
+            flash("Username or Password is incorrect")
+        else:
+            return redirect(url_for("adminHome"))
+    
+
+    return render_template("adminSignIn.html" , form=form)
 
 
 if __name__== '__main__':
