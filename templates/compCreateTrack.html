@@ -26,6 +26,7 @@
   </header>
   <body>
 	   <div>
+      {% include 'includes/_message.html' %}
        <table style="width:100%; border: solid black;">
         <tr>
           <th>question</th>
@@ -48,11 +49,11 @@
           <script>arr.push(0);</script>
           <script>
             function funct(id){
-
+              console.log(id);
             }
           </script>
           <th><form method="POST" style= "width: 200px; height: 90px;" action = "">
-
+              
             <textarea style="display: none; width:0px;height:0px" name="id">{{questions["question_id"]}}</textarea>
             <button class="btn btn-primary text-uppercase font-weight-bold mb-2" value="submit" id={{questions["question_id"]}} onClick="funct(this.id)"  >Add to Track</button>
             

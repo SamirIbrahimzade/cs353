@@ -33,7 +33,13 @@
           <th>{{tracks["track_name"]}}</th>
           <th>{{tracks["no_questions"]}}</th>
           <th>
-            <a href="compHome.html"><button type="button" class="btn btn-primary mt-5"  style="width: 200px">Home</button></a></th>
+            <form method="POST" style= "width: 200px; height: 90px;" action = "">
+              
+              <textarea style="display: none; width:0px;height:0px" name="id">{{tracks["track_id"]}}</textarea>
+              <button class="btn btn-primary text-uppercase font-weight-bold mb-2" value="submit" id={{tracks["track_id"]}} onClick="funct(this.id)"  >Select</button>
+              
+            </form>
+          </th>
         </tr>
          {% endfor %}
        </table>

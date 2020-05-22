@@ -120,10 +120,13 @@ def logout():
     return redirect(url_for("index"))
 
 compCreatedTrackId = 0;
+questionNoOfNewTrack = 0;
+
 
 @app.route("/compCreateTrack.html", methods=['GET', 'POST'])
 def compCreateTrack():
 
+    global questionNoOfNewTrack
     # Create cursor
     cur = mysql.connection.cursor()
 
@@ -156,9 +159,16 @@ def compCreateTrack():
         print("IDIDIDIDIDID===",id)
 
         if id !='0':
-            cur.execute("INSERT INTO trackquestions (question_id, track_id) VALUES(%s,%s)", [id,compCreatedTrackId]);      
-            mysql.connection.commit()   
+            try:
+                cur.execute("INSERT INTO trackquestions (question_id, track_id) VALUES(%s,%s)", [id,compCreatedTrackId]);      
+                mysql.connection.commit() 
+                questionNoOfNewTrack = questionNoOfNewTrack + 1;
+            except:
+                flash("Already Added to Track")  
         else:
+            cur.execute("UPDATE track SET no_questions = '{0}' WHERE track_id = '{1}'".format(questionNoOfNewTrack,compCreatedTrackId));      
+            mysql.connection.commit() 
+            questionNoOfNewTrack = 0;
             return redirect(url_for('compReviewTrack')) 
     else:
         trackName = "Track";
@@ -180,12 +190,16 @@ def compCreateTrack():
 @app.route("/compInviteDeveloper.html",methods=['GET', 'POST'])
 def compInviteDeveloper():
 
+    
+    track_id = request.args.get('track_id')
+    print("asdasdasdasdasd")
+    print("invite tr id",track_id, file=sys.stderr)
 
     # Create cursor
     cur = mysql.connection.cursor()
 
     # Create new User
-    cur.execute("SELECT name FROM user, developer WHERE user_id = developer_id")      
+    cur.execute("SELECT name, developer_id FROM user, developer WHERE user_id = developer_id")      
     mysql.connection.commit()
     queryResponse = cur.fetchall();
 
@@ -194,18 +208,41 @@ def compInviteDeveloper():
     if len(queryResponse) == 0:
         flash ("There is not any developer")
     else :
-        print (queryResponse)
+        print(track_id, file=sys.stderr)
 
     
     class InviteForm(Form):
         id = StringField('id', [validators.Length(min=1, max=50)])
+        jobDetails = StringField('jobDetails', [validators.Length(min=1, max=50)])
+        endDate = StringField('endDate', [validators.Length(min=1, max=50)])
     form = InviteForm(request.form)
+
+   
+
 
     global compCreatedTrackId 
 
     if request.method == "POST":
         id = form.id.data
+        jobDetails = form.jobDetails.data
+        endDate = form.endDate.data
+
         print(id, file=sys.stderr)
+        print(jobDetails, file=sys.stderr)
+        print(endDate, file=sys.stderr)
+        print("emaillll  ", session.get('email'), file=sys.stderr)
+
+        cur.execute("SELECT compRep_id FROM compRep, user WHERE (user.email='{0}' AND user.user_id = compRep.compRep_id)".format(session.get("email")))      
+        mysql.connection.commit()
+        activeUID = cur.fetchall();
+
+        print("activeuid   ", activeUID[0]["compRep_id"] , file=sys.stderr)
+
+        try:
+            cur.execute("INSERT INTO job (developer_id, compRep_id, jobDescription, endDate) VALUES ({0}, {1}, '{2}', '{3}')".format(id,activeUID[0]["compRep_id"],jobDetails,endDate));      
+            mysql.connection.commit() 
+        except:
+            flash("Already sent an invitation")  
 
 
 
@@ -216,7 +253,7 @@ def compHome():
     return render_template("compHome.html")
 
 
-@app.route("/compSelectTrack.html")
+@app.route("/compSelectTrack.html",methods=['GET', 'POST'])
 def compSelectTrack():
 
     # Create cursor
@@ -231,46 +268,107 @@ def compSelectTrack():
     if len(queryRespone) == 0:
         flash ("There is not any track")
     else :
-        print (queryRespone)
+        #print (queryRespone)
+        pass
+
+    class SelectTrackForm(Form):
+        id = StringField('id', [validators.Length(min=1, max=50)])
+    form = SelectTrackForm(request.form)
+
+    if request.method == "POST":
+        id = form.id.data
+        #print(id, file=sys.stderr)
+        return redirect(url_for("compInviteDeveloper", track_id = id))
+    
 
     return render_template("compSelectTrack.html", track = queryRespone);
 
-@app.route("/compReviewTrack.html")
+
+compCreatedTrackId2 = 0;
+
+@app.route("/compReviewTrack.html", methods=['GET', 'POST'])
 def compReviewTrack():
-    return render_template("compReviewTrack.html")
+
+    global compCreatedTrackId2
+
+    # Create cursor
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT track_id FROM track");      
+    mysql.connection.commit() 
+    trackResult = cur.fetchall();
+        
+    compCreatedTrackId2 = (trackResult[len(trackResult)-1]["track_id"]);
+    print (compCreatedTrackId2);
+
+    cur.execute("SELECT * FROM question,trackquestions WHERE (trackquestions.track_id='{0}'AND trackquestions.question_id = question.question_id)".format(compCreatedTrackId2));      
+    mysql.connection.commit() 
+    outputQuestions = cur.fetchall();
+
+    #print (outputQuestions)
+
+
+    if len(outputQuestions) == 0:
+        flash ("There is not any question in the track")
+
+    class ReviewForm(Form):
+        trackName = StringField('trackName', [validators.Length(min=1, max=50)])
+    form = ReviewForm(request.form)
+    
+    if request.method == "POST":
+         
+        trackName = form.trackName.data
+        print(trackName, file=sys.stderr)
+
+        cur.execute("UPDATE track SET track_name = '{0}' WHERE track_id = '{1}'".format(trackName,compCreatedTrackId2));      
+        mysql.connection.commit() 
+
+        return redirect(url_for('compHome'))
+        
+       
+
+
+    return render_template("compReviewTrack.html",question=outputQuestions)
 
 
 @app.route("/comSignIn.html", methods=['GET', 'POST'])
 def comSignIn():
-
-    class SignIn(Form):
-        email = StringField('Email', [validators.Length(min=6, max=50)])
-        password = PasswordField('Password', [validators.DataRequired(),
-                    validators.EqualTo('confirm', message="Passwords do not match!")])
-    
-    form = SignIn(request.form)
-
-    if (request.method == "POST"):
-
-        email = form.email.data
-        password = form.password.data
+    if session.get("logged_in") == True:
+        return redirect(url_for("compHome"))
+    elif request.method == 'POST':
+        email = request.form['email']
+        password_candidate = request.form['password']
 
         # Create Cursor
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM User, compRep " + 
-         "WHERE User.user_id = compRep.compRep_id AND User.email = '{0}' AND User.password = '{1}'".format(email , password))
-        mysql.connection.commit()
 
-        # Get response
-        queryResponse = cur.fetchall();
+        result = cur.execute("SELECT * FROM User WHERE email = %s", [email])
+        if result > 0:
+            # Get stored hash
+            data = cur.fetchone()
+            password = data['password']
 
-        if (len(queryResponse) == 0):
-            flash("Email or Password is incorrect")
+            # Compare the passwords
+            if password == password_candidate:
+                app.logger.info('PASSWORD MATCHED')
+                session['logged_in'] = True
+                session['email'] = email
+                flash("You are now logged in", "success")
+                return redirect(url_for('compHome'))
+            else:
+                return redirect(url_for('compHome'))
+                app.logger.info('PASSWORD NOT MATCHED')
+                error = 'INVALID LOGIN'
+                return render_template("comSignIn.html", error = error)
+
+            # Close cursor
+            cur.close()
         else:
-            return redirect(url_for("compHome"))
+            error = 'USER NOT FOUND'
+            app.logger.info('USER NOT FOUND')
+            return render_template("comSignIn.html", error = error)
     
 
-    return render_template("comSignIn.html" , form=form)
+    return render_template("comSignIn.html")
 
 @app.route("/adminSignIn.html")
 def adminSignIn():
@@ -278,47 +376,53 @@ def adminSignIn():
 
 @app.route("/comSignUp.html" , methods=['GET', 'POST'] )
 def comSignUp():
+    if session.get("logged_in") == True:
+        logout()
+    else:
+        class RegisterForm(Form):
 
-    class RegisterForm(Form):
+            companyName = StringField('Company Name', [validators.Length(min=1, max=50)])
+            agentName = StringField('Agent Name', [validators.Length(min=4, max=25)])
+            email = StringField('Email', [validators.Length(min=6, max=50)])
+            password = PasswordField('Password', [validators.DataRequired(),
+                        validators.EqualTo('confirm', message="Passwords do not match!")])
+            confirm = PasswordField('Confirm Password')
 
-        companyName = StringField('Company Name', [validators.Length(min=1, max=50)])
-        agentName = StringField('Agent Name', [validators.Length(min=4, max=25)])
-        email = StringField('Email', [validators.Length(min=6, max=50)])
-        password = PasswordField('Password', [validators.DataRequired(),
-                    validators.EqualTo('confirm', message="Passwords do not match!")])
-        confirm = PasswordField('Confirm Password')
+        form = RegisterForm(request.form)
 
-    form = RegisterForm(request.form)
+        if request.method == 'POST':
 
-    if request.method == 'POST':
+            agentName = form.agentName.data
+            companyName = form.companyName.data
+            email = form.email.data
+            password = form.password.data
 
-        agentName = form.agentName.data
-        companyName = form.companyName.data
-        email = form.email.data
-        password = form.password.data
+            # Create cursor
+            cur = mysql.connection.cursor()
 
-        # Create cursor
-        cur = mysql.connection.cursor()
+            try:
+                cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (name, email, password))
+                mysql.connection.commit()
+            except:
+                app.logger.info('Email exists already')
+                    
+                return redirect(url_for("comSignUp"))
 
-        # Create new User
-        cur.execute("INSERT INTO User(name, email, password) VALUES(%s, %s, %s)", (agentName, email, password))
-        mysql.connection.commit()
+            # Get User Id
+            cur.execute("Select user_id from User where email='{0}'".format(email));
+            mysql.connection.commit();
+            userid = cur.fetchall()[0]['user_id']
 
-        # Get User Id
-        cur.execute("Select user_id from User where email='{0}'".format(email));
-        mysql.connection.commit();
-        userid = cur.fetchall()[0]['user_id']
+            # Create new Company Rep
+            cur.execute("INSERT INTO compRep(compRep_id , comp_name) VALUES(%s , %s)", (userid , companyName))
+            mysql.connection.commit()
 
-        # Create new Company Rep
-        cur.execute("INSERT INTO compRep(compRep_id , comp_name) VALUES(%s , %s)", (userid , companyName))
-        mysql.connection.commit()
+            # Close connection
+            cur.close()
 
-        # Close connection
-        cur.close()
+            flash("You are now registered successfully", 'success')
 
-        flash("You are now registered successfully", 'success')
-
-        return redirect(url_for('index'))
+            return redirect(url_for('index'))
 
 
     return render_template("comSignUp.html" , form = form)
