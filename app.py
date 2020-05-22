@@ -144,9 +144,36 @@ def joinTrack():
 def searchResult():
     return render_template("searchResult.html")
 
-@app.route("/searchResult.html")
-def searchResult():
-    return render_template("searchResult.html")
+@app.route("/adminCreateQuestion.html" , methods=['Get', 'POST'])
+def adminCreateQuestion():
+    class makeQuestion(Form):
+        question = TextAreaField("Question: ",[validators.Required("Please enter Question")])
+        answer = TextAreaField("Answer: ",[validators.Required("Please Answer")])
+        dept_name = TextAreaField("Department Name: ",[validators.Required("dept_name")])
+        difficulty = RadioField("Difficulty", choices=[("e" , "easy") , ('m' , 'medium') , ('l', 'large')])
+    form = makeQuestion(request.form)
+    if request.method == 'POST':
+        print("in post")
+        # Create Cursor
+        cur = mysql.connection.cursor()
+
+        question = form.question.data
+        answer = form.answer.data
+        difficulty = form.difficulty.data
+        dept_name = form.dept_name.data
+        test_case = ""
+        approval = 1
+
+        cur.execute("INSERT INTO question(dept_name, description, test_case, difficulty, approval)" +
+            "VALUES ('{0}', '{1}', '{2}', '{3}', 0)".format(dept_name, question, test_case, difficulty))
+        mysql.connection.commit()
+
+        # Get response
+        queryResponse = cur.fetchall();
+
+        cur.close()
+        return redirect(url_for("adminHome"))
+    return render_template("adminCreateQuestion.html", form = form)
 
 @app.route("/questionDetails/<string:id>/")
 def questionDetails(id):
