@@ -1,33 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>CS353 - Group 20</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% extends 'layout.html' %}
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css" />
+<header style="text-align: center;">
+  <h1 class="text-secondary">Join Track</h1>
+  &nbsp;
+</header>
 
-    <!-- import the webpage's javascript file -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/script.js" defer></script>
-  </head>
-  <header style="text-align: center;">
-  	<h1 class="text-secondary">Join Track</h1>
-  	&nbsp;
-  </header>
-  <body>
-	<table style="width:100%; border: solid black;">
-  <tr>
-    <th>Track name</th>
-    <th>Number of questions</th>
-    <th>Join date</th>
-    <th>Join</th>
-  </tr>
+{% block body %}
 
+<table style="width:100%; border: solid black;">
+
+    <tr>
+        <th class="align-center">Track name</th>
+        <th>Number of questions</th>
+        <th>Join</th>
+    </tr>
+    {% for track in tracks %}
+    <tr>
+        <th>{{track["track_name"]}}</th>
+        <th>{{track["no_questions"]}}</th>
+        <th>
+            <form aciton="" method="POST">
+                <textarea style="display: none" name="id">{{track['track_id']}}</textarea>
+                <button class="btn btn-primary" value="submit" id={{track["track_id"]}}>Select</button>
+            </form>
+        </th>
+    </tr>
+    {% endfor %}
 </table>
-	&nbsp;
-  </body>
-</html>
+
+{% endblock %}

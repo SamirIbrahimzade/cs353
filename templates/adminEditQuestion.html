@@ -1,51 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>CS353 - Group 20</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% extends 'layout.html' %}
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css" />
+{% block body %}
+<header style="text-align: center;">
+  <h1 class="text-secondary">Edit Question</h1>
+  &nbsp;
+</header>
 
-    <!-- import the webpage's javascript file -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/script.js" defer></script>
-  </head>
-  <header style="text-align: center;">
-  	<h1 class="text-secondary">Edit Question</h1>
-  	&nbsp;
-  </header>
-  <body>
-    <div>
-      Question:
-      <textarea id="Question" rows="10" cols="160%" style="border: 3px solid black">
-        Question
-      </textarea>
-    </div>
-    <div>
-      <textarea id="Question" rows="1" cols="120%" style="border: 3px solid black">
-        Topics
-      </textarea>
-    </div>
-    <div>
-      Enter difficulty level:
-      <form action="">
-        <input type="radio" name="difficulty" value="easy"> Easy
-        <input type="radio" name="difficulty" value="mediun"> Medium
-        <input type="radio" name="difficulty" value="hard"> Hard
-      </form>
-      <br>
-    </div>
+{% from "includes/_formhelpers.html" import render_field %}
+<form method="POST" action="">
+  <div class="form-group">
+    {{render_field(form.question, class_="form-control", rows='10',cols='50')}}
+  </div>
+  <div>
+    {{render_field(form.difficulty, class_="form-control" )}}
+    <br>
+  </div>
 
-    <div class="p-3" style="text-align: center;">
-      <a href="adminHome.html" class="btn btn-info" role="button">Finish</a>
-    </div>
-    <div class="p-3" style="text-align: center;">
-      <a href="adminHome.html" class="btn btn-info" role="button">Home</a>
-    </div>
+  <div class="p-3" style="text-align: center;">
+    <button type="submit" class="btn btn-info">Post</button>
+    <a href="/adminHome.html" class="btn btn-info" role="button">Home</a>
+  </div>
+</form>
 
-  </body>
-</html>
+{% endblock %}

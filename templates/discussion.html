@@ -1,31 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>Discussion</title>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+{% extends 'layout.html' %}
 
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-</head>
-    <body>
-        <h1 class="text-center mb-5">Discussion</h1>
-        <div class="container">
-    		<div class="search-result row">
-    			<div class="col-xs-12 col-sm-12 col-md-4">
-    				<ul class="meta-search">
-    					<li><i class="glyphicon glyphicon-calendar"></i> <span>USER{{id}}</span></li>
-    				</ul>
-    			</div>
-    			<div class="col-md-4 excerpet">
-    				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatem, </p>
-                    <span class="plus"><a href="#" title="Lorem ipsum"><i class="glyphicon glyphicon-plus"></i></a></span>
-    			</div>
-                <div class="col-md-4 excerpet">
-                    <a href="questionDetails.html"><button class="btn btn-primary float-right">Reply</button></a>
-    			</div>
-    			<span class="clearfix borda"></span>
-    		</div>
-        </div>
-    </body>
-</html>
+<header style="text-align: center;">
+  <h1 class="text-secondary">Discussion</h1>
+</header>
+
+{% block body %}
+{% if comments %}
+    <table style="width:100%; border: solid black;">
+        <tr>
+            <th>Comment</th>
+            <th>Comment Date</th>
+        </tr>
+        {% for comment in comments %}
+        <tr>
+            <th>{{comment["description"]}}</th>
+            <th>{{comment["comment_date"]}}</th>
+        </tr>
+        {% endfor %}
+      </table>
+ {% else %}
+     <h1 class="text-center">NO COMMENTS YET!</h1>
+{% endif %}
+<form method="POST">
+<div class="p-3" style="text-align: center;">
+  <button class="btn btn-info" role="button" type="submit">ADD COMMENT</button>
+</div>
+</form>
+
+<div class="p-3" style="text-align: center;">
+    <a href="/devHome.html" class="btn btn-info" role="button">Home</a>
+</div>
+
+<div class="sec-widget" data-widget="9e1e25c224b32a941cccc468d284e148"></div>
+
+{% endblock %}

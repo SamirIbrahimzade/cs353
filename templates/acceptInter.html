@@ -1,19 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>CS353 - Group 20</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% extends 'layout.html' %}
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css" />
-
-    <!-- import the webpage's javascript file -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/script.js" defer></script>
-  </head>
+{% block body %}
   <header style="text-align: center;">
   	<h1 class="text-secondary">Accept Interview</h1>
   	&nbsp;
@@ -23,14 +10,27 @@
   <tr>
     <th>Company Name</th>
     <th>Deadline</th>
-    <th>Number of Questions</th>
     <th>Accept Interview</th>
   </tr>
+  {% for aInt in aInter %}
+  <tr>
+    <th>{{aInt["comp_name"]}}</th>
+    <th>{{aInt["endDate"]}}</th>
+    <th>
+    <form method="POST" style= "width: 200px; height: 90px; align-content:right " action = "">
+      <textarea style="display: none; width:0px;height:10px" name="compRepId">{{ aInt["compRep_id"]}}</textarea>
+      <textarea style="display: none; width:0px;height:10px" name="devId">{{ aInt["developer_id"]}}</textarea>
+    <button class="btn btn-primary mt-3" style="width:200px; align-content:right" type="submit" value="submit" id={{ aInt["compRep_id"]}} > details</button>
+
+    </form>
+  </th>
+
+  </tr>
+   {% endfor %}
   </table>
 	&nbsp;
   <div class="p-3" style="text-align: center;">
     <a href="devHome.html" class="btn btn-info" role="button">Home</a>
   </div>
 
-  </body>
-</html>
+{% endblock %}

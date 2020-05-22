@@ -1,23 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>CS353 - Group 20</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% extends 'layout.html' %}
+<header style="text-align: center;">
+  <h1 class="text-secondary">Leaderboard</h1>
+  &nbsp;
+</header>
 
-    <!-- import the webpage's stylesheet -->
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css" />
+{% block body %}
 
-    <!-- import the webpage's javascript file -->
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/script.js" defer></script>
-  </head>
-  <header style="text-align: center;">
-  	<h1 class="text-secondary">Leaderboard</h1>
-  	&nbsp;
-  </header>
   <body>
     <div style="padding:1%">
 	     <table style="width:90%; border: solid black;">
@@ -25,11 +13,17 @@
            <th>User name</th>
            <th>Score</th>
          </tr>
+         {% for leaders in leader %}
+         <tr>
+           <th>{{leaders["name"]}}</th>
+           <th>{{leaders["score"]}}</th>
+         </tr>
+         {% endfor %}
        </table>
      </div>
 	   &nbsp;
      <div class="p-3" style="text-align: center;">
        <a href="devHome.html" class="btn btn-info" role="button">Back to Home</a>
      </div>
-  </body>
-</html>
+
+{% endblock %}
