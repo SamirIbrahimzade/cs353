@@ -975,7 +975,7 @@ def adminSpecificReviewQuestion(id=-1):
             cur = mysql.connection.cursor()
 
             # Create new User
-            cur.execute("update Question set approval=1 where question_id={0};".format(id))
+            cur.execute("update question set approval=1 where question_id={0};".format(id))
             mysql.connection.commit()
 
         elif (btn == "decline"):
