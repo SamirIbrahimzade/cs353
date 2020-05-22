@@ -9,37 +9,21 @@
 {% from "includes/_formhelpers.html" import render_field %}
 <form method="POST" action="">
   <div class="form-group">
-    {{render_field(form.question, class_="form-control")}}
+    {{render_field(form.question, class_="form-control", rows='10',cols='50')}}
   </div>
   <div class="form-group">
-    {{render_field(form.answer, class_="form-control")}}
+    {{render_field(form.answer, class_="form-control" , rows='10',cols='50')}}
+  </div>
+
+  <div>
+    {{render_field(form.difficulty, class_="form-control" )}}
+    <br>
+  </div>
+
+  <div class="p-3" style="text-align: center;">
+    <button type="submit" class="btn btn-info">Post</button>
+    <a href="/adminHome.html" class="btn btn-info" role="button">Home</a>
   </div>
 </form>
-<p>Question:</p>
-<div>
-  <textarea id="Question" rows="10" cols="160%" style="border: 3px solid black">
-  </textarea>
-</div>
-<p>Answer</p>
-<div>
-  <textarea id="Question" rows="10" cols="160%" style="border: 3px solid black">
-  </textarea>
-</div>
-<div>
-  Enter difficulty level:
-  <form action="">
-    <input type="radio" name="difficulty" value="easy"> Easy
-    <input type="radio" name="difficulty" value="mediun"> Medium
-    <input type="radio" name="difficulty" value="hard"> Hard
-  </form>
-  <br>
-</div>
-
-<div class="p-3" style="text-align: center;">
-  <a href="devHome.html" class="btn btn-info" role="button">Post</a>
-</div>
-<div class="p-3" style="text-align: center;">
-  <a href="devHome.html" class="btn btn-info" role="button">Home</a>
-</div>
 
 {% endblock %}

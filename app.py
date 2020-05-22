@@ -489,8 +489,45 @@ def adminSearchQuestionResult(topic):
 @app.route("/adminEditQuestion/<id>" , methods=["GET" , "POST"])
 def adminEditQuestion(id):
 
+    # Create cursor
+    cur = mysql.connection.cursor()
+    
+    # Find the Question 
+    cur.execute("Select * from Question where question_id = '{0}';".format(id))
+    mysql.connection.commit()
 
-    return render_template('adminEditQuestion.html')
+    q = cur.fetchall()[0];
+
+    class editQuestion(Form):
+
+        question = TextAreaField('Question' , default=q['description'] )
+        answer = TextAreaField('Answer' , default=q['test_case'])
+        difficulty = RadioField("Difficulty", choices=[("Easy" , "Easy") , ('Medium' , 'Medium') , ('Large', 'Large')] , default=q['difficulty'])
+
+
+    form = editQuestion(request.form)
+
+    if (request.method == "POST"):
+
+        question = form.question.data
+        answer = form.answer.data
+        diff = form.difficulty.data
+
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Create new User
+        cur.execute("update Question set description='{0}' , test_case='{1}' , difficulty='{2}' where question_id={3};"
+                    .format(question , answer , diff , id))        
+        mysql.connection.commit()
+
+        return redirect(url_for("adminHome"))
+
+
+
+    return render_template('adminEditQuestion.html' , form=form)
+
+
 
 if __name__== '__main__':
     app.secret_key = "difficult"
